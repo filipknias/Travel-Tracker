@@ -19,7 +19,6 @@ const theme = createMuiTheme(customTheme);
 const useStyles = makeStyles({
   container: {
     padding: 0,
-    marginTop: "80px",
   },
 });
 
