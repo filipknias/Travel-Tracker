@@ -5,8 +5,8 @@ const Map = () => {
   const [viewport, setViewport] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
-    latitude: 45.4211,
-    longitude: -75.6903,
+    latitude: 40.712776,
+    longitude: -74.005974,
     zoom: 10,
   });
 
@@ -22,6 +22,18 @@ const Map = () => {
         };
       });
     });
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setViewport((prevViewport) => {
+          return {
+            ...prevViewport,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+        });
+      });
+    }
   }, []);
 
   return (
