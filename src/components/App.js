@@ -19,6 +19,11 @@ const theme = createMuiTheme(customTheme);
 const useStyles = makeStyles({
   container: {
     padding: 0,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100vh",
   },
 });
 
