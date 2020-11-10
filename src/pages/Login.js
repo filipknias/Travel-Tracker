@@ -66,7 +66,7 @@ const Login = () => {
         </Typography>
       </div>
       <Typography variant="h5" className={classes.formHeader}>
-        Sign in to your account.
+        Sign in to your account
       </Typography>
       <form>
         <TextField
