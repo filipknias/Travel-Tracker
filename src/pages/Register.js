@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 // Material UI
 import "fontsource-rajdhani";
@@ -7,8 +8,13 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import Alert from "@material-ui/lab/Alert";
+import CircularProgress from "@material-ui/core/CircularProgress";
 // Images
 import LogoImage from "../img/logo.svg";
+// Redux
+import { connect } from "react-redux";
+import { signUpUser } from "../redux/actions/userActions";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -44,14 +50,38 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     marginTop: 40,
   },
+  errorMessage: {
+    margin: "20px 0",
+  },
+  progressCircle: {
+    height: 120,
+  },
 }));
 
-const Register = () => {
+const Register = ({ history, user, signUpUser }) => {
   const classes = useStyles();
   // Refs
   const emailRef = useRef();
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
+
+  // Submit new user
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const newUserData = {
+      email: emailRef.current.value,
+      password: passwordRef.current.value,
+      confirmPassword: confirmPasswordRef.current.value,
+    };
+
+    signUpUser(
+      newUserData.email,
+      newUserData.password,
+      newUserData.confirmPassword,
+      history
+    );
+  };
 
   return (
     <Paper className={classes.paper} variant="outlined">
@@ -69,14 +99,19 @@ const Register = () => {
       <Typography variant="h5" className={classes.formHeader}>
         Create new account
       </Typography>
-      <form>
+      <form onSubmit={handleSubmit}>
+        {user.error && (
+          <Alert severity="error" className={classes.errorMessage}>
+            {user.error}
+          </Alert>
+        )}
         <TextField
           variant="outlined"
           id="email"
           type="email"
           label="Adress e-mail"
           className={classes.formInput}
-          ref={emailRef}
+          inputRef={emailRef}
           required
           fullWidth
         />
@@ -86,7 +121,7 @@ const Register = () => {
           type="password"
           label="Password"
           className={classes.formInput}
-          ref={passwordRef}
+          inputRef={passwordRef}
           required
           fullWidth
         />
@@ -96,7 +131,7 @@ const Register = () => {
           type="password"
           label="Confirm Password"
           className={classes.formInput}
-          ref={confirmPasswordRef}
+          inputRef={confirmPasswordRef}
           required
           fullWidth
         />
@@ -111,8 +146,13 @@ const Register = () => {
             type="submit"
             variant="contained"
             color="primary"
+            disabled={user.loading}
           >
-            Save
+            {user.loading ? (
+              <CircularProgress color="primary" size={30} />
+            ) : (
+              <p>Save</p>
+            )}
           </Button>
         </div>
       </form>
@@ -120,4 +160,18 @@ const Register = () => {
   );
 };
 
-export default Register;
+Register.propTypes = {
+  history: PropTypes.object.isRequired,
+  signUpUser: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  user: state.user,
+});
+
+const mapActionsToProps = {
+  signUpUser,
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(Register);

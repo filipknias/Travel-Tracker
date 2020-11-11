@@ -13,6 +13,9 @@ import Navbar from "./Navbar/Navbar";
 import Map from "../pages/Map";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+// Redux
+import { Provider } from "react-redux";
+import store from "../redux/store";
 
 const theme = createMuiTheme(customTheme);
 
@@ -31,18 +34,20 @@ const App = () => {
   const classes = useStyles();
 
   return (
-    <Router>
+    <Provider store={store}>
       <MuiThemeProvider theme={theme}>
-        <Navbar />
-        <Switch>
-          <Container className={classes.container} maxWidth="xl">
-            <Route exact path="/" component={Map} />
-            <Route path="/login" component={Login} />
-            <Route path="/register" component={Register} />
-          </Container>
-        </Switch>
+        <Router>
+          <Navbar />
+          <Switch>
+            <Container className={classes.container} maxWidth="xl">
+              <Route exact path="/" component={Map} />
+              <Route path="/login" component={Login} />
+              <Route path="/register" component={Register} />
+            </Container>
+          </Switch>
+        </Router>
       </MuiThemeProvider>
-    </Router>
+    </Provider>
   );
 };
 
