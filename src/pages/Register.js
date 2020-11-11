@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 // Material UI
@@ -14,7 +14,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import LogoImage from "../img/logo.svg";
 // Redux
 import { connect } from "react-redux";
-import { signUpUser } from "../redux/actions/userActions";
+import { signUpUser, clearError } from "../redux/actions/userActions";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -51,19 +51,21 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 40,
   },
   errorMessage: {
-    margin: "20px 0",
-  },
-  progressCircle: {
-    height: 120,
+    margin: "30px 0",
   },
 }));
 
-const Register = ({ history, user, signUpUser }) => {
+const Register = ({ history, user, signUpUser, clearError }) => {
   const classes = useStyles();
   // Refs
   const emailRef = useRef();
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
+
+  // Clear error on page load
+  useEffect(() => {
+    clearError();
+  }, []);
 
   // Submit new user
   const handleSubmit = (e) => {
@@ -162,8 +164,9 @@ const Register = ({ history, user, signUpUser }) => {
 
 Register.propTypes = {
   history: PropTypes.object.isRequired,
-  signUpUser: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
+  signUpUser: PropTypes.func.isRequired,
+  clearError: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -172,6 +175,7 @@ const mapStateToProps = (state) => ({
 
 const mapActionsToProps = {
   signUpUser,
+  clearError,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Register);

@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 // Material UI
 import "fontsource-rajdhani";
@@ -7,8 +8,13 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import Alert from "@material-ui/lab/Alert";
+import CircularProgress from "@material-ui/core/CircularProgress";
 // Images
 import LogoImage from "../img/logo.svg";
+// Redux
+import { connect } from "react-redux";
+import { loginUser, clearError } from "../redux/actions/userActions";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -44,13 +50,33 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     marginTop: 40,
   },
+  errorMessage: {
+    margin: "30px 0",
+  },
 }));
 
-const Login = () => {
+const Login = ({ history, user, loginUser, clearError }) => {
   const classes = useStyles();
   // Refs
   const emailRef = useRef();
   const passwordRef = useRef();
+
+  // Clear error on page load
+  useEffect(() => {
+    clearError();
+  }, []);
+
+  // Login user
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const userData = {
+      email: emailRef.current.value,
+      password: passwordRef.current.value,
+    };
+
+    loginUser(userData.email, userData.password, history);
+  };
 
   return (
     <Paper className={classes.paper} variant="outlined">
@@ -68,14 +94,19 @@ const Login = () => {
       <Typography variant="h5" className={classes.formHeader}>
         Sign in to your account
       </Typography>
-      <form>
+      <form onSubmit={handleSubmit}>
+        {user.error && (
+          <Alert severity="error" className={classes.errorMessage}>
+            {user.error}
+          </Alert>
+        )}
         <TextField
           variant="outlined"
           id="email"
           type="email"
           label="Adress e-mail"
           className={classes.formInput}
-          ref={emailRef}
+          inputRef={emailRef}
           required
           fullWidth
         />
@@ -85,7 +116,7 @@ const Login = () => {
           type="password"
           label="Password"
           className={classes.formInput}
-          ref={passwordRef}
+          inputRef={passwordRef}
           required
           fullWidth
         />
@@ -103,8 +134,13 @@ const Login = () => {
             type="submit"
             variant="contained"
             color="primary"
+            disabled={user.loading}
           >
-            Continue
+            {user.loading ? (
+              <CircularProgress color="primary" size={30} />
+            ) : (
+              <p>Continue</p>
+            )}
           </Button>
         </div>
       </form>
@@ -112,4 +148,20 @@ const Login = () => {
   );
 };
 
-export default Login;
+Login.propTypes = {
+  history: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
+  loginUser: PropTypes.func.isRequired,
+  clearError: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  user: state.user,
+});
+
+const mapActionsToProps = {
+  loginUser,
+  clearError,
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(Login);

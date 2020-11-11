@@ -15,7 +15,6 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
   try {
     // Clear error
     dispatch({ type: CLEAR_ERROR });
-
     // Check if passwords are the same
     if (password !== confirmPassword) {
       return dispatch({
@@ -23,23 +22,18 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
         payload: "Passwords must be the same.",
       });
     }
-
     // Start loading
     dispatch({ type: START_USER_LOADING });
-
     // Create new user
     await auth.createUserWithEmailAndPassword(email, password);
-
     // Set user displayName
     const newUser = auth.currentUser;
     const displayName = newUser.email.split("@")[0];
-
     // Update displayName and photoURL
     await newUser.updateProfile({
       displayName,
       photoURL: "gs://travel-tracker-fc10f.appspot.com/no-profile-image.png",
     });
-
     // Set user state
     const userData = {
       email: newUser.email,
@@ -50,7 +44,6 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
       type: SET_USER,
       payload: userData,
     });
-
     // Stop loading
     dispatch({ type: STOP_USER_LOADING });
     // Redirect to home page
@@ -64,4 +57,43 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
     // Stop loading
     dispatch({ type: STOP_USER_LOADING });
   }
+};
+
+export const loginUser = (email, password, history) => async (dispatch) => {
+  try {
+    // Clear error
+    dispatch({ type: CLEAR_ERROR });
+    // Start loading
+    dispatch({ type: START_USER_LOADING });
+    // Login user
+    const user = await auth.signInWithEmailAndPassword(email, password);
+    console.log(user);
+    // Set user state
+    const userData = {
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+    };
+    dispatch({
+      type: SET_USER,
+      payload: userData,
+    });
+    // Stop loading
+    dispatch({ type: STOP_USER_LOADING });
+    // Redirect to home page
+    history.push("/");
+  } catch (err) {
+    // Set error
+    dispatch({
+      type: SET_ERROR,
+      payload: err.message,
+    });
+    // Stop loading
+    dispatch({ type: STOP_USER_LOADING });
+  }
+};
+
+export const clearError = () => (dispatch) => {
+  // Clear error state
+  dispatch({ type: CLEAR_ERROR });
 };
