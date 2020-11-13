@@ -30,6 +30,8 @@ const useStyles = makeStyles({
   },
 });
 
+// TODO: Check for localStorage token and log in user if there is any
+
 const App = () => {
   const classes = useStyles();
 

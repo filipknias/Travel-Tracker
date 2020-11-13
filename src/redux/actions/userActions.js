@@ -30,9 +30,10 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
     const newUser = auth.currentUser;
     const displayName = newUser.email.split("@")[0];
     // Update displayName and photoURL
+    const photoURL = `https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_STORAGE_BUCKET}/o/no-profile-image.png?alt=media&token=51b65f74-9c00-42a2-9632-bdc3134db157`;
     await newUser.updateProfile({
       displayName,
-      photoURL: "gs://travel-tracker-fc10f.appspot.com/no-profile-image.png",
+      photoURL,
     });
     // Set user state
     const userData = {
@@ -44,6 +45,7 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
       type: SET_USER,
       payload: userData,
     });
+    // TODO: Set local storage token after creating user
     // Stop loading
     dispatch({ type: STOP_USER_LOADING });
     // Redirect to home page
@@ -60,14 +62,15 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
 };
 
 export const loginUser = (email, password, history) => async (dispatch) => {
+  // TODO: Set local storage token after log in
   try {
     // Clear error
     dispatch({ type: CLEAR_ERROR });
     // Start loading
     dispatch({ type: START_USER_LOADING });
     // Login user
-    const user = await auth.signInWithEmailAndPassword(email, password);
-    console.log(user);
+    await auth.signInWithEmailAndPassword(email, password);
+    const user = auth.currentUser;
     // Set user state
     const userData = {
       email: user.email,
@@ -97,3 +100,5 @@ export const clearError = () => (dispatch) => {
   // Clear error state
   dispatch({ type: CLEAR_ERROR });
 };
+
+// TODO: Make a getCurrentUser state function and call it on app starts after checking localstorage

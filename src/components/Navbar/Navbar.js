@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 // Components
 import SearchBar from "./SearchBar";
+import ProfilePopover from "./ProfilePopover";
 // Material UI
 import "fontsource-rajdhani";
 import { makeStyles } from "@material-ui/core/styles";
@@ -18,6 +20,8 @@ import NotificationsIcon from "@material-ui/icons/Notifications";
 import SearchIcon from "@material-ui/icons/Search";
 import ReturnIcon from "@material-ui/icons/KeyboardReturn";
 import LoginIcon from "@material-ui/icons/AccountBox";
+// Redux
+import { connect } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -28,9 +32,6 @@ const useStyles = makeStyles((theme) => ({
   },
   appTitle: {
     fontFamily: "rajdhani",
-  },
-  tooltip: {
-    fontSize: 12,
   },
   searchIcon: {
     marginLeft: "auto",
@@ -45,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Navbar = () => {
+const Navbar = ({ user }) => {
   const classes = useStyles();
   const [searchBarMobile, setSearchBarMobile] = useState(false);
 
@@ -80,7 +81,7 @@ const Navbar = () => {
 
             <div className={classes.navbarRight}>
               <Hidden mdUp>
-                <Tooltip title="Search" classes={classes}>
+                <Tooltip title="Search">
                   <IconButton
                     color="inherit"
                     onClick={() => setSearchBarMobile(true)}
@@ -93,31 +94,39 @@ const Navbar = () => {
               <Hidden smDown>
                 <SearchBar />
                 <Link to="/">
-                  <Tooltip title="Map" classes={classes}>
+                  <Tooltip title="Map">
                     <IconButton color="inherit">
                       <MapIcon />
                     </IconButton>
                   </Tooltip>
                 </Link>
-                <Tooltip title="My Gallery" classes={classes}>
-                  <IconButton color="inherit">
-                    <GalleryIcon />
-                  </IconButton>
-                </Tooltip>
+                {user.auth && (
+                  <Tooltip title="My Gallery">
+                    <IconButton color="inherit">
+                      <GalleryIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
               </Hidden>
 
-              <Tooltip title="Notifications" classes={classes}>
-                <IconButton color="inherit">
-                  <NotificationsIcon />
-                </IconButton>
-              </Tooltip>
-              <Link to="/login">
-                <Tooltip title="Sign In" classes={classes}>
-                  <IconButton color="inherit">
-                    <LoginIcon />
-                  </IconButton>
-                </Tooltip>
-              </Link>
+              {user.auth ? (
+                <>
+                  <Tooltip title="Notifications">
+                    <IconButton color="inherit">
+                      <NotificationsIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <ProfilePopover user={user} />
+                </>
+              ) : (
+                <Link to="/login">
+                  <Tooltip title="Sign In">
+                    <IconButton color="inherit">
+                      <LoginIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Link>
+              )}
             </div>
           </>
         )}
@@ -126,4 +135,12 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+Navbar.propTypes = {
+  user: PropTypes.object.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  user: state.user,
+});
+
+export default connect(mapStateToProps, null)(Navbar);

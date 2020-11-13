@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 // Material UI
 import "fontsource-rajdhani";
 import { makeStyles } from "@material-ui/core/styles";
@@ -55,8 +55,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Login = ({ history, user, loginUser, clearError }) => {
+const Login = ({ user, loginUser, clearError }) => {
   const classes = useStyles();
+  const history = useHistory();
   // Refs
   const emailRef = useRef();
   const passwordRef = useRef();
@@ -149,7 +150,6 @@ const Login = ({ history, user, loginUser, clearError }) => {
 };
 
 Login.propTypes = {
-  history: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   loginUser: PropTypes.func.isRequired,
   clearError: PropTypes.func.isRequired,

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 // Material UI
 import "fontsource-rajdhani";
 import { makeStyles } from "@material-ui/core/styles";
@@ -55,8 +55,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Register = ({ history, user, signUpUser, clearError }) => {
+const Register = ({ user, signUpUser, clearError }) => {
   const classes = useStyles();
+  const history = useHistory();
   // Refs
   const emailRef = useRef();
   const passwordRef = useRef();
@@ -163,7 +164,6 @@ const Register = ({ history, user, signUpUser, clearError }) => {
 };
 
 Register.propTypes = {
-  history: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   signUpUser: PropTypes.func.isRequired,
   clearError: PropTypes.func.isRequired,

@@ -15,4 +15,11 @@ export default {
       secondary: "#A4A9AC",
     },
   },
+  overrides: {
+    MuiTooltip: {
+      tooltip: {
+        fontSize: 14,
+      },
+    },
+  },
 };
