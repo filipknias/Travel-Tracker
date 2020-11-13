@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
@@ -12,9 +13,9 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import Divider from "@material-ui/core/Divider";
 // Icons
-import GalleryIcon from "@material-ui/icons/Collections";
 import LogoutIcon from "@material-ui/icons/ExitToApp";
-import PlaceIcon from "@material-ui/icons/Place";
+import ManageProfileIcon from "@material-ui/icons/AccountBox";
+import ResetPasswordIcon from "@material-ui/icons/Lock";
 // Redux
 import { connect } from "react-redux";
 import { logoutUser } from "../../redux/actions/userActions";
@@ -34,11 +35,6 @@ const useStyles = makeStyles((theme) => ({
   },
   profileNameData: {
     marginLeft: 20,
-  },
-  manageProfileLink: {
-    color: theme.palette.primary.main,
-    cursor: "pointer",
-    marginTop: 5,
   },
 }));
 
@@ -81,24 +77,21 @@ const ProfilePopover = ({ user, logoutUser }) => {
             <div className={classes.profileNameData}>
               <Typography variant="h6">{user.data.displayName}</Typography>
               <Typography variant="body2">{user.data.email}</Typography>
-              <Typography variant="body1" className={classes.manageProfileLink}>
-                Manage profile
-              </Typography>
             </div>
           </div>
           <Divider />
           <List>
             <ListItem button>
               <ListItemIcon>
-                <PlaceIcon />
+                <ManageProfileIcon />
               </ListItemIcon>
-              <ListItemText primary="My Places" />
+              <ListItemText primary="Manage Profile" />
             </ListItem>
-            <ListItem button>
+            <ListItem component={Link} to="/reset-password" button>
               <ListItemIcon>
-                <GalleryIcon />
+                <ResetPasswordIcon />
               </ListItemIcon>
-              <ListItemText primary="My Gallery" />
+              <ListItemText primary="Reset Password" />
             </ListItem>
             <ListItem onClick={() => logoutUser()} button>
               <ListItemIcon>
@@ -118,8 +111,4 @@ ProfilePopover.propTypes = {
   logoutUser: PropTypes.func.isRequired,
 };
 
-const mapActionsToProps = {
-  logoutUser,
-};
-
-export default connect(null, mapActionsToProps)(ProfilePopover);
+export default connect(null, { logoutUser })(ProfilePopover);

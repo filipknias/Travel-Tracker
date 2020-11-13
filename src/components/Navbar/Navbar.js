@@ -101,7 +101,7 @@ const Navbar = ({ user }) => {
                   </Tooltip>
                 </Link>
                 {user.auth && (
-                  <Tooltip title="My Gallery">
+                  <Tooltip title="Gallery">
                     <IconButton color="inherit">
                       <GalleryIcon />
                     </IconButton>
