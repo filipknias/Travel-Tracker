@@ -15,6 +15,9 @@ import Divider from "@material-ui/core/Divider";
 import GalleryIcon from "@material-ui/icons/Collections";
 import LogoutIcon from "@material-ui/icons/ExitToApp";
 import PlaceIcon from "@material-ui/icons/Place";
+// Redux
+import { connect } from "react-redux";
+import { logoutUser } from "../../redux/actions/userActions";
 
 const useStyles = makeStyles((theme) => ({
   profileAvatar: {
@@ -39,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ProfilePopover({ user }) {
+const ProfilePopover = ({ user, logoutUser }) => {
   const classes = useStyles();
   // State
   const [open, setOpen] = useState(false);
@@ -97,7 +100,7 @@ export default function ProfilePopover({ user }) {
               </ListItemIcon>
               <ListItemText primary="My Gallery" />
             </ListItem>
-            <ListItem button>
+            <ListItem onClick={() => logoutUser()} button>
               <ListItemIcon>
                 <LogoutIcon />
               </ListItemIcon>
@@ -108,8 +111,15 @@ export default function ProfilePopover({ user }) {
       </IconButton>
     </>
   );
-}
+};
 
 ProfilePopover.propTypes = {
   user: PropTypes.object.isRequired,
+  logoutUser: PropTypes.func.isRequired,
 };
+
+const mapActionsToProps = {
+  logoutUser,
+};
+
+export default connect(null, mapActionsToProps)(ProfilePopover);

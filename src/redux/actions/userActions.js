@@ -1,6 +1,7 @@
 // Types
 import {
   SET_USER,
+  LOGOUT_USER,
   SET_ERROR,
   CLEAR_ERROR,
   START_USER_LOADING,
@@ -35,17 +36,7 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
       displayName,
       photoURL,
     });
-    // Set user state
-    const userData = {
-      email: newUser.email,
-      displayName: newUser.displayName,
-      photoURL: newUser.photoURL,
-    };
-    dispatch({
-      type: SET_USER,
-      payload: userData,
-    });
-    // TODO: Set local storage token after creating user
+    dispatch(setCurrentUser());
     // Stop loading
     dispatch({ type: STOP_USER_LOADING });
     // Redirect to home page
@@ -62,7 +53,6 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
 };
 
 export const loginUser = (email, password, history) => async (dispatch) => {
-  // TODO: Set local storage token after log in
   try {
     // Clear error
     dispatch({ type: CLEAR_ERROR });
@@ -70,17 +60,7 @@ export const loginUser = (email, password, history) => async (dispatch) => {
     dispatch({ type: START_USER_LOADING });
     // Login user
     await auth.signInWithEmailAndPassword(email, password);
-    const user = auth.currentUser;
-    // Set user state
-    const userData = {
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-    };
-    dispatch({
-      type: SET_USER,
-      payload: userData,
-    });
+    dispatch(setCurrentUser());
     // Stop loading
     dispatch({ type: STOP_USER_LOADING });
     // Redirect to home page
@@ -96,9 +76,26 @@ export const loginUser = (email, password, history) => async (dispatch) => {
   }
 };
 
+export const setCurrentUser = () => (dispatch) => {
+  const user = auth.currentUser;
+  // Set user state
+  const userData = {
+    email: user.email,
+    displayName: user.displayName,
+    photoURL: user.photoURL,
+  };
+  dispatch({
+    type: SET_USER,
+    payload: userData,
+  });
+};
+
+export const logoutUser = () => (dispatch) => {
+  auth.signOut();
+  dispatch({ type: LOGOUT_USER });
+};
+
 export const clearError = () => (dispatch) => {
   // Clear error state
   dispatch({ type: CLEAR_ERROR });
 };
-
-// TODO: Make a getCurrentUser state function and call it on app starts after checking localstorage
