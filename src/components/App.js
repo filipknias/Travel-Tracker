@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import "../App.css";
-import "fontsource-roboto";
 // Material UI
 import createMuiTheme from "@material-ui/core/styles/createMuiTheme";
 import { ThemeProvider as MuiThemeProvider } from "@material-ui/core/styles";
@@ -16,6 +15,9 @@ import Register from "../pages/Register";
 // Redux
 import { Provider } from "react-redux";
 import store from "../redux/store";
+import { setCurrentUser } from "../redux/actions/userActions";
+// Firebase
+import { auth } from "../utilities/firebase";
 
 const theme = createMuiTheme(customTheme);
 
@@ -26,14 +28,18 @@ const useStyles = makeStyles({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    height: "100vh",
+    minHeight: "100vh",
   },
 });
 
-// TODO: Check for localStorage token and log in user if there is any
-
 const App = () => {
   const classes = useStyles();
+
+  auth.onAuthStateChanged((authUser) => {
+    if (authUser) {
+      store.dispatch(setCurrentUser());
+    }
+  });
 
   return (
     <Provider store={store}>

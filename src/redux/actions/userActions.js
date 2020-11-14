@@ -36,10 +36,10 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
       displayName,
       photoURL,
     });
+    // Set current user state
     dispatch(setCurrentUser());
     // Stop loading
     dispatch({ type: STOP_USER_LOADING });
-    // Redirect to home page
     history.push("/");
   } catch (err) {
     // Set error
@@ -58,8 +58,10 @@ export const loginUser = (email, password, history) => async (dispatch) => {
     dispatch({ type: CLEAR_ERROR });
     // Start loading
     dispatch({ type: START_USER_LOADING });
+    // Keep user logged in
     // Login user
     await auth.signInWithEmailAndPassword(email, password);
+    // Set current user state
     dispatch(setCurrentUser());
     // Stop loading
     dispatch({ type: STOP_USER_LOADING });
@@ -76,7 +78,7 @@ export const loginUser = (email, password, history) => async (dispatch) => {
   }
 };
 
-export const setCurrentUser = () => (dispatch) => {
+export const setCurrentUser = () => async (dispatch) => {
   const user = auth.currentUser;
   // Set user state
   const userData = {
