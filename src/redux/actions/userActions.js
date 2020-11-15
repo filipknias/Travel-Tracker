@@ -61,8 +61,6 @@ export const loginUser = (email, password, history) => async (dispatch) => {
     // Keep user logged in
     // Login user
     await auth.signInWithEmailAndPassword(email, password);
-    // Set current user state
-    dispatch(setCurrentUser());
     // Stop loading
     dispatch({ type: STOP_USER_LOADING });
     // Redirect to home page

@@ -7,6 +7,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import customTheme from "../utilities/theme";
 import Container from "@material-ui/core/Container";
 // Components
+import AuthRoute from "../utilities/AuthRoute";
 import Navbar from "./Navbar/Navbar";
 // Pages
 import Map from "../pages/Map";
@@ -15,7 +16,7 @@ import Register from "../pages/Register";
 // Redux
 import { Provider } from "react-redux";
 import store from "../redux/store";
-import { setCurrentUser } from "../redux/actions/userActions";
+import { setCurrentUser, logoutUser } from "../redux/actions/userActions";
 // Firebase
 import { auth } from "../utilities/firebase";
 
@@ -38,6 +39,8 @@ const App = () => {
   auth.onAuthStateChanged((authUser) => {
     if (authUser) {
       store.dispatch(setCurrentUser());
+    } else {
+      store.dispatch(logoutUser());
     }
   });
 
@@ -49,8 +52,8 @@ const App = () => {
           <Switch>
             <Container className={classes.container} maxWidth="xl">
               <Route exact path="/" component={Map} />
-              <Route path="/login" component={Login} />
-              <Route path="/register" component={Register} />
+              <AuthRoute path="/login" component={Login} />
+              <AuthRoute path="/register" component={Register} />
             </Container>
           </Switch>
         </Router>
