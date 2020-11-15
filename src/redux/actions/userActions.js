@@ -95,6 +95,13 @@ export const logoutUser = () => (dispatch) => {
   dispatch({ type: LOGOUT_USER });
 };
 
+export const changeUserPassword = (email, history) => async (dispatch) => {
+  dispatch({ type: START_USER_LOADING });
+  await auth.sendPasswordResetEmail(email);
+  dispatch({ type: STOP_USER_LOADING });
+  history.push("/login");
+};
+
 export const clearError = () => (dispatch) => {
   // Clear error state
   dispatch({ type: CLEAR_ERROR });

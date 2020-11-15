@@ -13,6 +13,7 @@ import Navbar from "./Navbar/Navbar";
 import Map from "../pages/Map";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import ResetPassword from "../pages/ResetPassword";
 // Redux
 import { Provider } from "react-redux";
 import store from "../redux/store";
@@ -54,6 +55,7 @@ const App = () => {
               <Route exact path="/" component={Map} />
               <AuthRoute path="/login" component={Login} />
               <AuthRoute path="/register" component={Register} />
+              <Route path="/reset-password" component={ResetPassword} />
             </Container>
           </Switch>
         </Router>
