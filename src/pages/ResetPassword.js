@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Link, useHistory } from "react-router-dom";
 // Material UI
@@ -8,12 +8,13 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import Alert from "@material-ui/lab/Alert";
 import CircularProgress from "@material-ui/core/CircularProgress";
 // Images
 import LogoImage from "../img/logo.svg";
 // Redux
 import { connect } from "react-redux";
-import { changeUserPassword } from "../redux/actions/userActions";
+import { changeUserPassword, clearError } from "../redux/actions/userActions";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -61,6 +62,10 @@ const ResetPassword = ({ user, changeUserPassword, clearError }) => {
   // Refs
   const emailRef = useRef();
 
+  useEffect(() => {
+    clearError();
+  }, []);
+
   // Send email with password reset
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -84,6 +89,11 @@ const ResetPassword = ({ user, changeUserPassword, clearError }) => {
         Reset password
       </Typography>
       <form onSubmit={handleSubmit}>
+        {user.error && (
+          <Alert severity="error" className={classes.errorMessage}>
+            {user.error}
+          </Alert>
+        )}
         <TextField
           variant="outlined"
           id="email"
@@ -122,10 +132,13 @@ const ResetPassword = ({ user, changeUserPassword, clearError }) => {
 ResetPassword.propTypes = {
   user: PropTypes.object.isRequired,
   changeUserPassword: PropTypes.func.isRequired,
+  clearError: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   user: state.user,
 });
 
-export default connect(mapStateToProps, { changeUserPassword })(ResetPassword);
+export default connect(mapStateToProps, { changeUserPassword, clearError })(
+  ResetPassword
+);

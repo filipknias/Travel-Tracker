@@ -36,10 +36,11 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
       displayName,
       photoURL,
     });
-    // Set current user state
+    // Set updated user state
     dispatch(setCurrentUser());
     // Stop loading
     dispatch({ type: STOP_USER_LOADING });
+    // Redirect to home page
     history.push("/");
   } catch (err) {
     // Set error
@@ -58,7 +59,6 @@ export const loginUser = (email, password, history) => async (dispatch) => {
     dispatch({ type: CLEAR_ERROR });
     // Start loading
     dispatch({ type: START_USER_LOADING });
-    // Keep user logged in
     // Login user
     await auth.signInWithEmailAndPassword(email, password);
     // Stop loading
@@ -96,10 +96,26 @@ export const logoutUser = () => (dispatch) => {
 };
 
 export const changeUserPassword = (email, history) => async (dispatch) => {
-  dispatch({ type: START_USER_LOADING });
-  await auth.sendPasswordResetEmail(email);
-  dispatch({ type: STOP_USER_LOADING });
-  history.push("/login");
+  try {
+    // Clear error
+    dispatch({ type: CLEAR_ERROR });
+    // Start loading
+    dispatch({ type: START_USER_LOADING });
+    // Send email with reset password
+    await auth.sendPasswordResetEmail(email);
+    // Stop loading
+    dispatch({ type: STOP_USER_LOADING });
+    // Redirect to login page
+    history.push("/login");
+  } catch (err) {
+    // Set error
+    dispatch({
+      type: SET_ERROR,
+      payload: err.message,
+    });
+    // Stop loading
+    dispatch({ type: STOP_USER_LOADING });
+  }
 };
 
 export const clearError = () => (dispatch) => {
