@@ -1,37 +1,38 @@
 // Types
 import {
-  SET_LATITUDE,
-  SET_LONGITUDE,
-  SET_ZOOM,
+  SET_VIEWPORT,
+  SET_SELECTED_PLACE,
   SET_PLACES,
   START_DATA_LOADING,
   STOP_DATA_LOADING,
 } from "../types";
 
 const initialState = {
-  latitude: 40.712776,
-  longitude: -74.005974,
-  zoom: 10,
+  viewport: {
+    width: window.innerWidth,
+    height: window.innerHeight,
+    latitude: 40.73,
+    longitude: -73.93,
+    zoom: 10,
+  },
+  selectedPlace: null,
   places: [],
   loading: false,
 };
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case SET_LATITUDE:
+    case SET_VIEWPORT:
       return {
         ...state,
-        latitude: action.payload,
+        viewport: {
+          ...action.payload,
+        },
       };
-    case SET_LONGITUDE:
+    case SET_SELECTED_PLACE:
       return {
         ...state,
-        longitude: action.payload,
-      };
-    case SET_ZOOM:
-      return {
-        ...state,
-        zoom: action.payload,
+        selectedPlace: action.payload,
       };
     case SET_PLACES:
       return {
@@ -48,5 +49,7 @@ export default function (state = initialState, action) {
         ...state,
         loading: false,
       };
+    default:
+      return state;
   }
 }

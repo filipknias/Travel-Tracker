@@ -12,15 +12,17 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import Divider from "@material-ui/core/Divider";
+import Hidden from "@material-ui/core/Hidden";
 // Icons
 import LogoutIcon from "@material-ui/icons/ExitToApp";
 import ManageProfileIcon from "@material-ui/icons/AccountBox";
 import ResetPasswordIcon from "@material-ui/icons/Lock";
+import GalleryIcon from "@material-ui/icons/Collections";
 // Redux
 import { connect } from "react-redux";
 import { logoutUser } from "../../redux/actions/userActions";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   profileAvatar: {
     height: 25,
     width: 25,
@@ -36,72 +38,74 @@ const useStyles = makeStyles((theme) => ({
   profileNameData: {
     marginLeft: 20,
   },
-}));
+});
 
 const ProfilePopover = ({ user, logoutUser }) => {
   const classes = useStyles();
   // State
-  const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-
-  // Handle toggle open popover
-  const toggleOpen = (e) => {
-    setOpen((prevOpen) => !prevOpen);
-    setAnchorEl(e.currentTarget);
-  };
+  const open = Boolean(anchorEl);
 
   return (
     <>
-      <IconButton onClick={toggleOpen}>
+      <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
         <Avatar
           alt="profile-image"
           src={user.data.photoURL}
           className={classes.profileAvatar}
         />
-        <Popover
-          open={open}
-          anchorEl={anchorEl}
-          classes={classes}
-          onClose={() => setAnchorEl(null)}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "center",
-          }}
-        >
-          <div className={classes.profileInfo}>
-            <Avatar
-              src={user.data.photoURL}
-              alt="profile-image"
-              className={classes.popoverAvatar}
-            />
-            <div className={classes.profileNameData}>
-              <Typography variant="h6">{user.data.displayName}</Typography>
-              <Typography variant="body2">{user.data.email}</Typography>
-            </div>
+      </IconButton>
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        classes={classes}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+      >
+        <div className={classes.profileInfo}>
+          <Avatar
+            src={user.data.photoURL}
+            alt="profile-image"
+            className={classes.popoverAvatar}
+          />
+          <div className={classes.profileNameData}>
+            <Typography variant="h6">{user.data.displayName}</Typography>
+            <Typography variant="body2">{user.data.email}</Typography>
           </div>
-          <Divider />
-          <List>
+        </div>
+        <Divider />
+        <List>
+          <Hidden mdUp>
             <ListItem button>
               <ListItemIcon>
-                <ManageProfileIcon />
+                <GalleryIcon />
               </ListItemIcon>
-              <ListItemText primary="Manage Profile" />
+              <ListItemText primary="Gallery" />
             </ListItem>
-            <ListItem component={Link} to="/reset-password" button>
-              <ListItemIcon>
-                <ResetPasswordIcon />
-              </ListItemIcon>
-              <ListItemText primary="Reset Password" />
-            </ListItem>
-            <ListItem onClick={() => logoutUser()} button>
-              <ListItemIcon>
-                <LogoutIcon />
-              </ListItemIcon>
-              <ListItemText primary="Logout" />
-            </ListItem>
-          </List>
-        </Popover>
-      </IconButton>
+          </Hidden>
+          <ListItem button>
+            <ListItemIcon>
+              <ManageProfileIcon />
+            </ListItemIcon>
+            <ListItemText primary="Manage Profile" />
+          </ListItem>
+          <ListItem component={Link} to="/reset-password" button>
+            <ListItemIcon>
+              <ResetPasswordIcon />
+            </ListItemIcon>
+            <ListItemText primary="Reset Password" />
+          </ListItem>
+          <ListItem onClick={() => logoutUser()} button>
+            <ListItemIcon>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText primary="Logout" />
+          </ListItem>
+        </List>
+      </Popover>
     </>
   );
 };

@@ -1,105 +1,70 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import ReactMapGL from "react-map-gl";
+// Components
+import MapButtons from "../components/Map/MapButtons";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
-import Tooltip from "@material-ui/core/Tooltip";
-// Icons
-import LocationIcon from "@material-ui/icons/GpsFixed";
-import OptionsIcon from "@material-ui/icons/Settings";
+// Redux
+import { connect } from "react-redux";
+import {
+  setViewport,
+  setCurrentUserPosition,
+} from "../redux/actions/dataActions";
 
-const useStyles = makeStyles((theme) => ({
-  mapBtn: {
-    borderRadius: "50%",
-    padding: 20,
-    margin: "0 15px",
-  },
-  btnGroup: {
-    display: "flex",
-    position: "absolute",
-    bottom: 50,
-    right: 30,
-    [theme.breakpoints.down("sm")]: {
-      bottom: 30,
-      right: 20,
-    },
-  },
-}));
+const useStyles = makeStyles((theme) => ({}));
 
-const Map = () => {
+const Map = ({ data, setViewport, setCurrentUserPosition }) => {
   const classes = useStyles();
-  const [viewport, setViewport] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-    latitude: 40.712776,
-    longitude: -74.005974,
-    zoom: 10,
-  });
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
-  // Update viewport width and height on window resize and locate user on the map
+  // Update viewport width and height on window resize
   useEffect(() => {
-    window.addEventListener("resize", (e) => {
-      setViewport((prevViewport) => {
-        return {
-          ...prevViewport,
-          width: e.currentTarget.innerWidth,
-          height: e.currentTarget.innerHeight,
-        };
-      });
+    window.addEventListener("resize", updateWindowSize);
+
+    setViewport({
+      ...data.viewport,
+      width: window.innerWidth,
+      height: window.innerHeight,
     });
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setViewport((prevViewport) => {
-          return {
-            ...prevViewport,
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          };
-        });
-      });
-    }
-  }, []);
+    return () => window.removeEventListener("resize", updateWindowSize);
+  }, [windowWidth, windowHeight]);
 
-  const handleMyLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setViewport((prevViewport) => {
-          return {
-            ...prevViewport,
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            zoom: 10,
-          };
-        });
-      });
-    }
+  const updateWindowSize = () => {
+    setWindowWidth(window.innerWidth);
+    setWindowHeight(window.innerHeight);
   };
+
+  useEffect(() => {
+    setCurrentUserPosition(data.viewport);
+  }, []);
 
   return (
     <ReactMapGL
-      {...viewport}
+      {...data.viewport}
       mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
       onViewportChange={(viewport) => setViewport(viewport)}
     >
-      <div className={classes.btnGroup}>
-        <Tooltip title="Options">
-          <Button variant="contained" className={classes.mapBtn}>
-            <OptionsIcon />
-          </Button>
-        </Tooltip>
-        <Tooltip title="My Location">
-          <Button
-            variant="contained"
-            className={classes.mapBtn}
-            onClick={handleMyLocation}
-          >
-            <LocationIcon />
-          </Button>
-        </Tooltip>
-      </div>
+      <MapButtons />
     </ReactMapGL>
   );
 };
 
-export default Map;
+Map.propTypes = {
+  data: PropTypes.object.isRequired,
+  setViewport: PropTypes.func.isRequired,
+  setCurrentUserPosition: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  data: state.data,
+});
+
+const mapActionsToProps = {
+  setViewport,
+  setCurrentUserPosition,
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(Map);
