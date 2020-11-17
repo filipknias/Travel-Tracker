@@ -21,6 +21,7 @@ export const setCurrentUserPosition = (viewport) => (dispatch) => {
         ...viewport,
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
+        zoom: 10,
       };
       dispatch(setViewport(updatedViewport));
     });

@@ -58,7 +58,6 @@ const ProfilePopover = ({ user, logoutUser }) => {
       <Popover
         open={open}
         anchorEl={anchorEl}
-        classes={classes}
         onClose={() => setAnchorEl(null)}
         anchorOrigin={{
           vertical: "bottom",

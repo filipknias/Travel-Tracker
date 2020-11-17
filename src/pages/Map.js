@@ -37,6 +37,7 @@ const Map = ({ data, setViewport, setCurrentUserPosition }) => {
     setWindowHeight(window.innerHeight);
   };
 
+  // Set current user position
   useEffect(() => {
     setCurrentUserPosition(data.viewport);
   }, []);
@@ -46,6 +47,7 @@ const Map = ({ data, setViewport, setCurrentUserPosition }) => {
       {...data.viewport}
       mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
       onViewportChange={(viewport) => setViewport(viewport)}
+      mapStyle="mapbox://styles/mapbox/streets-v11"
     >
       <MapButtons />
     </ReactMapGL>

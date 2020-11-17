@@ -1,18 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
+import Popover from "@material-ui/core/Popover";
+import Typography from "@material-ui/core/Typography";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
+import Checkbox from "@material-ui/core/Checkbox";
 // Icons
 import LocationIcon from "@material-ui/icons/GpsFixed";
 import OptionsIcon from "@material-ui/icons/Settings";
+import ThemeIcon from "@material-ui/icons/Explore";
 // Redux
 import { connect } from "react-redux";
-import {
-  setViewport,
-  setCurrentUserPosition,
-} from "../../redux/actions/dataActions";
+import { setCurrentUserPosition } from "../../redux/actions/dataActions";
 
 const useStyles = makeStyles((theme) => ({
   mapBtn: {
@@ -30,31 +35,84 @@ const useStyles = makeStyles((theme) => ({
       right: 20,
     },
   },
+  paper: {
+    paddingTop: 15,
+  },
+  popoverHeader: {
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  themeIcon: {
+    marginLeft: 10,
+  },
 }));
 
-const MapButtons = ({ data, setViewport, setCurrentUserPosition }) => {
+const MapButtons = ({ data, setCurrentUserPosition }) => {
   const classes = useStyles();
+  // State
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
-  const handleMyLocationClick = () => {
-    setViewport({
-      ...data.viewport,
-      zoom: 10,
-    });
-    setCurrentUserPosition(data.viewport);
+  const OptionsPopover = () => {
+    return (
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        classes={classes}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+      >
+        <Typography variant="subtitle1" className={classes.popoverHeader}>
+          Map Options
+        </Typography>
+        <List>
+          <ListItem button>
+            <ListItemIcon>
+              <ThemeIcon className={classes.themeIcon} />
+            </ListItemIcon>
+            <ListItemText primary="Map Theme" />
+          </ListItem>
+          <ListItem button>
+            <ListItemIcon>
+              <Checkbox checked={false} />
+            </ListItemIcon>
+            <ListItemText primary="Public Places" />
+          </ListItem>
+          <ListItem button>
+            <ListItemIcon>
+              <Checkbox checked={false} />
+            </ListItemIcon>
+            <ListItemText primary="My Places" />
+          </ListItem>
+        </List>
+      </Popover>
+    );
   };
 
   return (
     <div className={classes.btnGroup}>
       <Tooltip title="Options">
-        <Button variant="contained" className={classes.mapBtn}>
+        <Button
+          variant="contained"
+          className={classes.mapBtn}
+          onClick={(e) => setAnchorEl(e.currentTarget)}
+        >
           <OptionsIcon />
         </Button>
       </Tooltip>
+      <OptionsPopover />
       <Tooltip title="My Location">
         <Button
           variant="contained"
           className={classes.mapBtn}
-          onClick={handleMyLocationClick}
+          onClick={() => setCurrentUserPosition(data.viewport)}
         >
           <LocationIcon />
         </Button>
@@ -65,7 +123,6 @@ const MapButtons = ({ data, setViewport, setCurrentUserPosition }) => {
 
 MapButtons.propTypes = {
   data: PropTypes.object.isRequired,
-  setViewport: PropTypes.func.isRequired,
   setCurrentUserPosition: PropTypes.func.isRequired,
 };
 
@@ -74,7 +131,6 @@ const mapStateToProps = (state) => ({
 });
 
 const mapActionsToProps = {
-  setViewport,
   setCurrentUserPosition,
 };
 
