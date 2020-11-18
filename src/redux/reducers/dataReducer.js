@@ -3,9 +3,14 @@ import {
   SET_VIEWPORT,
   SET_SELECTED_PLACE,
   SET_PLACES,
+  SET_MAP_STYLE,
   START_DATA_LOADING,
   STOP_DATA_LOADING,
 } from "../types";
+
+const DEFAULT_MAP_STYLE = "mapbox://styles/mapbox/streets-v11";
+const mapStyle =
+  localStorage.getItem("TRAVEL-TRACKER-MAP-STYLE") || DEFAULT_MAP_STYLE;
 
 const initialState = {
   viewport: {
@@ -15,6 +20,7 @@ const initialState = {
     longitude: -73.93,
     zoom: 10,
   },
+  mapStyle: mapStyle,
   selectedPlace: null,
   places: [],
   loading: false,
@@ -38,6 +44,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         places: [...action.payload],
+      };
+    case SET_MAP_STYLE:
+      return {
+        ...state,
+        mapStyle: action.payload,
       };
     case START_DATA_LOADING:
       return {

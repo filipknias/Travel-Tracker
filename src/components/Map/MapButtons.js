@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+// Components
+import MapThemeDialog from "./MapThemeDialog";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -14,7 +16,6 @@ import Checkbox from "@material-ui/core/Checkbox";
 // Icons
 import LocationIcon from "@material-ui/icons/GpsFixed";
 import OptionsIcon from "@material-ui/icons/Settings";
-import ThemeIcon from "@material-ui/icons/Explore";
 // Redux
 import { connect } from "react-redux";
 import { setCurrentUserPosition } from "../../redux/actions/dataActions";
@@ -41,9 +42,6 @@ const useStyles = makeStyles((theme) => ({
   popoverHeader: {
     textAlign: "center",
     fontWeight: "bold",
-  },
-  themeIcon: {
-    marginLeft: 10,
   },
 }));
 
@@ -73,12 +71,7 @@ const MapButtons = ({ data, setCurrentUserPosition }) => {
           Map Options
         </Typography>
         <List>
-          <ListItem button>
-            <ListItemIcon>
-              <ThemeIcon className={classes.themeIcon} />
-            </ListItemIcon>
-            <ListItemText primary="Map Theme" />
-          </ListItem>
+          <MapThemeDialog setAnchorEl={setAnchorEl} />
           <ListItem button>
             <ListItemIcon>
               <Checkbox checked={false} />

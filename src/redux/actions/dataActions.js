@@ -3,6 +3,7 @@ import {
   SET_VIEWPORT,
   SET_SELECTED_PLACE,
   SET_PLACES,
+  SET_MAP_STYLE,
   START_DATA_LOADING,
   STOP_DATA_LOADING,
 } from "../types";
@@ -21,9 +22,16 @@ export const setCurrentUserPosition = (viewport) => (dispatch) => {
         ...viewport,
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
-        zoom: 10,
+        zoom: 12,
       };
       dispatch(setViewport(updatedViewport));
     });
   }
+};
+
+export const setMapStyle = (mapStyleURL) => (dispatch) => {
+  dispatch({
+    type: SET_MAP_STYLE,
+    payload: mapStyleURL,
+  });
 };

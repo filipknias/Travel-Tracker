@@ -47,7 +47,7 @@ const Map = ({ data, setViewport, setCurrentUserPosition }) => {
       {...data.viewport}
       mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
       onViewportChange={(viewport) => setViewport(viewport)}
-      mapStyle="mapbox://styles/mapbox/streets-v11"
+      mapStyle={data.mapStyle}
     >
       <MapButtons />
     </ReactMapGL>
