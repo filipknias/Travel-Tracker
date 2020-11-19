@@ -99,7 +99,11 @@ const MapThemeDialog = ({ data, setMapStyle, setAnchorEl }) => {
         <DialogContent className={classes.dialogContent}>
           <List>
             {MAP_STYLES.map((mapStyle) => (
-              <ListItem onClick={() => setSelectedUrl(mapStyle.mapURL)} button>
+              <ListItem
+                onClick={() => setSelectedUrl(mapStyle.mapURL)}
+                key={mapStyle.mapURL}
+                button
+              >
                 <Radio
                   value={mapStyle.mapURL}
                   onChange={() => setSelectedUrl(mapStyle.mapURL)}

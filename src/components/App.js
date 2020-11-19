@@ -50,14 +50,16 @@ const App = () => {
       <MuiThemeProvider theme={theme}>
         <Router>
           <Navbar />
-          <Switch>
-            <Container className={classes.container} maxWidth="xl">
-              <Route exact path="/" component={Map} />
-              <AuthRoute path="/login" component={Login} />
-              <AuthRoute path="/register" component={Register} />
-              <Route path="/reset-password" component={ResetPassword} />
-            </Container>
-          </Switch>
+          <Container className={classes.container}>
+            <>
+              <Switch>
+                <Route exact path="/" component={Map} />
+                <AuthRoute path="/login" component={Login} />
+                <AuthRoute path="/register" component={Register} />
+                <Route path="/reset-password" component={ResetPassword} />
+              </Switch>
+            </>
+          </Container>
         </Router>
       </MuiThemeProvider>
     </Provider>

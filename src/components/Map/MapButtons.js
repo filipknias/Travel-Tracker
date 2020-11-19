@@ -36,12 +36,10 @@ const useStyles = makeStyles((theme) => ({
       right: 20,
     },
   },
-  paper: {
-    paddingTop: 15,
-  },
   popoverHeader: {
     textAlign: "center",
     fontWeight: "bold",
+    marginTop: 15,
   },
 }));
 
@@ -56,7 +54,6 @@ const MapButtons = ({ data, setCurrentUserPosition }) => {
       <Popover
         open={open}
         anchorEl={anchorEl}
-        classes={classes}
         onClose={() => setAnchorEl(null)}
         anchorOrigin={{
           vertical: "top",
