@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import ReactMapGL from "react-map-gl";
 // Components
 import MapButtons from "../components/Map/MapButtons";
+import PlaceFormDialog from "../components/Map/PlaceFormDialog";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Snackbar from "@material-ui/core/Snackbar";
@@ -26,12 +27,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Map = ({ data, setViewport, setCurrentUserPosition }) => {
+const Map = ({ data, user, setViewport, setCurrentUserPosition }) => {
   const classes = useStyles();
+  // State
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-  const [click, setClick] = useState(null);
-  const open = Boolean(click);
+  const [coords, setCoords] = useState(null);
+  const [click, setClick] = useState(false);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
 
   const updateWindowSize = () => {
     setWindowWidth(window.innerWidth);
@@ -56,6 +59,21 @@ const Map = ({ data, setViewport, setCurrentUserPosition }) => {
     setCurrentUserPosition(data.viewport);
   }, []);
 
+  const handleMapClick = (PointerEvent) => {
+    setCoords(PointerEvent.lngLat);
+    setClick(true);
+  };
+
+  const handleMapUnClick = () => {
+    setClick(false);
+    setCoords(null);
+  };
+
+  const handleDialogOpen = () => {
+    setFormDialogOpen(true);
+    setClick(false);
+  };
+
   return (
     <>
       <ReactMapGL
@@ -63,47 +81,58 @@ const Map = ({ data, setViewport, setCurrentUserPosition }) => {
         mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
         onViewportChange={(viewport) => setViewport(viewport)}
         mapStyle={data.mapStyle}
-        onClick={(PointerEvent) => setClick(PointerEvent.lngLat)}
-        onMouseDown={() => setClick(null)}
+        onClick={handleMapClick}
+        onMouseDown={handleMapUnClick}
       ></ReactMapGL>
       <MapButtons />
-      {click && (
-        <Snackbar
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          open={open}
-          onClose={() => setClick(null)}
-        >
-          <SnackbarContent
-            classes={classes}
-            message={`Lng. ${click[0].toFixed(3)}, Lat. ${click[1].toFixed(3)}`}
-            action={
-              <>
-                <Tooltip title="Add Place">
-                  <IconButton
-                    size="small"
-                    color="inherit"
-                    onClick={() => setClick(null)}
-                  >
-                    <AddPlaceIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Close">
-                  <IconButton
-                    size="small"
-                    color="inherit"
-                    onClick={() => setClick(null)}
-                    style={{ marginLeft: 5 }}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </Tooltip>
-              </>
-            }
+      {coords && (
+        <>
+          <Snackbar
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
+            open={click}
+            onClose={() => setCoords(null)}
+          >
+            <SnackbarContent
+              classes={classes}
+              message={`Lng. ${coords[0].toFixed(3)}, Lat. ${coords[1].toFixed(
+                3
+              )}`}
+              action={
+                <>
+                  {user.auth && (
+                    <Tooltip title="Add Place">
+                      <IconButton
+                        size="small"
+                        color="inherit"
+                        onClick={handleDialogOpen}
+                      >
+                        <AddPlaceIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  <Tooltip title="Close">
+                    <IconButton
+                      size="small"
+                      color="inherit"
+                      onClick={handleMapUnClick}
+                      style={{ marginLeft: 5 }}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              }
+            />
+          </Snackbar>
+          <PlaceFormDialog
+            open={formDialogOpen}
+            setOpen={setFormDialogOpen}
+            coords={coords}
           />
-        </Snackbar>
+        </>
       )}
     </>
   );
@@ -111,12 +140,14 @@ const Map = ({ data, setViewport, setCurrentUserPosition }) => {
 
 Map.propTypes = {
   data: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   setViewport: PropTypes.func.isRequired,
   setCurrentUserPosition: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   data: state.data,
+  user: state.user,
 });
 
 const mapActionsToProps = {
