@@ -3,6 +3,10 @@ import {
   SET_VIEWPORT,
   SET_SELECTED_PLACE,
   SET_PLACES,
+  SET_CLICK,
+  RESET_CLICK,
+  SET_COORDS,
+  RESET_COORDS,
   SET_MAP_STYLE,
   START_DATA_LOADING,
   STOP_DATA_LOADING,
@@ -20,7 +24,9 @@ const initialState = {
     longitude: -73.93,
     zoom: 10,
   },
-  mapStyle: mapStyle,
+  mapStyle,
+  click: false,
+  coords: null,
   selectedPlace: null,
   places: [],
   loading: false,
@@ -39,6 +45,26 @@ export default function (state = initialState, action) {
       return {
         ...state,
         selectedPlace: action.payload,
+      };
+    case SET_CLICK:
+      return {
+        ...state,
+        click: true,
+      };
+    case RESET_CLICK:
+      return {
+        ...state,
+        click: false,
+      };
+    case SET_COORDS:
+      return {
+        ...state,
+        coords: action.payload,
+      };
+    case RESET_COORDS:
+      return {
+        ...state,
+        coords: null,
       };
     case SET_PLACES:
       return {

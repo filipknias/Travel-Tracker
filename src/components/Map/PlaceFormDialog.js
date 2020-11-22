@@ -4,8 +4,8 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
-import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Dialog from "@material-ui/core/Dialog";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -15,6 +15,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import MarkerIcon from "@material-ui/icons/Room";
 // Redux
 import { connect } from "react-redux";
+import { resetCoords } from "../../redux/actions/dataActions";
 // FilePond
 import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -53,7 +54,7 @@ const useStyles = makeStyles({
   },
 });
 
-const PlaceFormDialog = ({ open, setOpen, coords }) => {
+const PlaceFormDialog = ({ open, setOpen, resetCoords }) => {
   const classes = useStyles();
   const MARKER_COLORS = [
     "#f44336",
@@ -83,6 +84,7 @@ const PlaceFormDialog = ({ open, setOpen, coords }) => {
 
   const handleDialogClose = () => {
     setOpen(false);
+    resetCoords();
     setImages([]);
   };
 
@@ -90,7 +92,6 @@ const PlaceFormDialog = ({ open, setOpen, coords }) => {
     e.preventDefault();
     const locationValue = locationRef.current.value;
     const descriptionValue = descriptionRef.current.value;
-    console.log(locationValue, descriptionValue, images);
   };
 
   return (
@@ -140,6 +141,9 @@ const PlaceFormDialog = ({ open, setOpen, coords }) => {
               </div>
             </div>
             <div className={classes.formSection}>
+              <Typography variant="subtitle1" style={{ marginBottom: 10 }}>
+                Import photos from this place
+              </Typography>
               <FilePond
                 className={classes.filePondInput}
                 files={images}
@@ -171,7 +175,11 @@ const PlaceFormDialog = ({ open, setOpen, coords }) => {
 PlaceFormDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   setOpen: PropTypes.func.isRequired,
-  coords: PropTypes.array.isRequired,
+  resetCoords: PropTypes.func.isRequired,
 };
 
-export default connect(null, null)(PlaceFormDialog);
+const mapStateToProps = (state) => ({
+  data: state.data,
+});
+
+export default connect(mapStateToProps, { resetCoords })(PlaceFormDialog);
