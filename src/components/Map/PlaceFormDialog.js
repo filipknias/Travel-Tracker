@@ -6,6 +6,7 @@ import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Dialog from "@material-ui/core/Dialog";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -15,7 +16,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import MarkerIcon from "@material-ui/icons/Room";
 // Redux
 import { connect } from "react-redux";
-import { resetCoords } from "../../redux/actions/dataActions";
+import { resetCoords, addPlace } from "../../redux/actions/dataActions";
 // FilePond
 import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -54,7 +55,7 @@ const useStyles = makeStyles({
   },
 });
 
-const PlaceFormDialog = ({ open, setOpen, resetCoords }) => {
+const PlaceFormDialog = ({ data, open, setOpen, resetCoords, addPlace }) => {
   const classes = useStyles();
   const MARKER_COLORS = [
     "#f44336",
@@ -66,7 +67,7 @@ const PlaceFormDialog = ({ open, setOpen, resetCoords }) => {
   ];
   // State
   const [markerColor, setMarkerColor] = useState(MARKER_COLORS[0]);
-  const [images, setImages] = useState([]);
+  const [photos, setPhotos] = useState([]);
   const [publicSwitch, setPublicSwitch] = useState(false);
   // Refs
   const locationRef = useRef();
@@ -85,101 +86,123 @@ const PlaceFormDialog = ({ open, setOpen, resetCoords }) => {
   const handleDialogClose = () => {
     setOpen(false);
     resetCoords();
-    setImages([]);
+    setPhotos([]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const locationValue = locationRef.current.value;
     const descriptionValue = descriptionRef.current.value;
+
+    await addPlace(
+      data.coords[0],
+      data.coords[1],
+      locationValue,
+      descriptionValue,
+      markerColor,
+      photos,
+      publicSwitch
+    );
+
+    handleDialogClose();
   };
 
   return (
-    <>
-      <Dialog open={open} onClose={handleDialogClose}>
-        <DialogTitle>Few more steps to add your place.</DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleSubmit}>
-            <FormControlLabel
-              control={
-                <Switch
-                  color="primary"
-                  checked={publicSwitch}
-                  onChange={() => setPublicSwitch((prevPublic) => !prevPublic)}
-                />
-              }
-              label="Make Public"
-            />
-            <div className={classes.formSection}>
-              <TextField
-                label="Place Location"
-                inputRef={locationRef}
-                required
-                fullWidth
-              />
-            </div>
-            <div className={classes.formSection}>
-              <TextField
-                label="Description (optional)"
-                inputRef={descriptionRef}
-                multiline
-                rows={3}
-                fullWidth
-              />
-            </div>
-            <div className={classes.formSection}>
-              <div className={classes.markerColorGroup}>
-                <Tooltip title="Marker color">
-                  <MarkerIcon
-                    style={{ color: markerColor }}
-                    className={classes.marker}
-                  />
-                </Tooltip>
-                {MARKER_COLORS.map((markerColor) => (
-                  <MarkerColorPick color={markerColor} key={markerColor} />
-                ))}
-              </div>
-            </div>
-            <div className={classes.formSection}>
-              <Typography variant="subtitle1" style={{ marginBottom: 10 }}>
-                Import photos from this place
-              </Typography>
-              <FilePond
-                className={classes.filePondInput}
-                files={images}
-                acceptedFileTypes={["image/png", "image/jpeg"]}
-                labelFileTypeNotAllowed="Invalid file type"
-                allowMultiple={true}
-                onupdatefiles={(files) =>
-                  setImages(files.map((fileItem) => fileItem.file))
-                }
-              />
-            </div>
-            <div className={classes.formSection}>
-              <Button
-                type="submit"
-                variant="contained"
+    <Dialog open={open} onClose={handleDialogClose}>
+      <DialogTitle>Few more steps to add your place</DialogTitle>
+      <DialogContent>
+        <form onSubmit={handleSubmit}>
+          <FormControlLabel
+            control={
+              <Switch
                 color="primary"
-                fullWidth
-              >
-                Complete
-              </Button>
+                checked={publicSwitch}
+                onChange={() => setPublicSwitch((prevPublic) => !prevPublic)}
+              />
+            }
+            label="Make Public"
+          />
+          <div className={classes.formSection}>
+            <TextField
+              label="Place Location"
+              inputRef={locationRef}
+              required
+              fullWidth
+            />
+          </div>
+          <div className={classes.formSection}>
+            <TextField
+              label="Description (optional)"
+              inputRef={descriptionRef}
+              multiline
+              rows={3}
+              fullWidth
+            />
+          </div>
+          <div className={classes.formSection}>
+            <div className={classes.markerColorGroup}>
+              <Tooltip title="Marker color">
+                <MarkerIcon
+                  style={{ color: markerColor }}
+                  className={classes.marker}
+                />
+              </Tooltip>
+              {MARKER_COLORS.map((markerColor) => (
+                <MarkerColorPick color={markerColor} key={markerColor} />
+              ))}
             </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </>
+          </div>
+          <div className={classes.formSection}>
+            <Typography variant="subtitle1" style={{ marginBottom: 10 }}>
+              Import photos from this place
+            </Typography>
+            <FilePond
+              className={classes.filePondInput}
+              files={photos}
+              acceptedFileTypes={["image/png", "image/jpeg"]}
+              labelFileTypeNotAllowed="Invalid file type"
+              allowMultiple={true}
+              onupdatefiles={(files) =>
+                setPhotos(files.map((fileItem) => fileItem.file))
+              }
+            />
+          </div>
+          <div className={classes.formSection}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={data.loading}
+              fullWidth
+            >
+              {data.loading ? (
+                <CircularProgress color="inherit" size={30} />
+              ) : (
+                <p>Complete</p>
+              )}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 
 PlaceFormDialog.propTypes = {
+  data: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
   setOpen: PropTypes.func.isRequired,
   resetCoords: PropTypes.func.isRequired,
+  addPlace: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   data: state.data,
 });
 
-export default connect(mapStateToProps, { resetCoords })(PlaceFormDialog);
+const mapActionsToProps = {
+  resetCoords,
+  addPlace,
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(PlaceFormDialog);

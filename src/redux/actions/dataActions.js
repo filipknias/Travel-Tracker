@@ -11,6 +11,9 @@ import {
   START_DATA_LOADING,
   STOP_DATA_LOADING,
 } from "../types";
+// Firebase
+import { storage, db } from "../../utilities/firebase";
+import { v4 as uuid } from "uuid";
 
 export const setViewport = (viewport) => (dispatch) => {
   dispatch({
@@ -67,4 +70,44 @@ export const resetClick = () => (dispatch) => {
 
 export const resetCoords = () => (dispatch) => {
   dispatch({ type: RESET_COORDS });
+};
+
+export const addPlace = (
+  longitude,
+  latitude,
+  location,
+  description,
+  markerColor,
+  photosFiles,
+  publicStatus
+) => async (dispatch) => {
+  dispatch({ type: START_DATA_LOADING });
+
+  if (location.trim() === "") return;
+
+  const photosUrls = photosFiles.map(async (photo) => {
+    const storageRef = storage.ref();
+    const fileRef = storageRef.child(uuid());
+    await fileRef.put(photo);
+    const fileUrl = await fileRef.getDownloadURL();
+    return fileUrl;
+  });
+  const photoUrlsPromisesResolved = await Promise.all(photosUrls);
+
+  const placesRef = db.collection("places");
+  const createdPlace = {
+    longitude,
+    latitude,
+    location,
+    markerColor,
+    photos: photoUrlsPromisesResolved,
+    public: publicStatus,
+    createdAt: Date.now(),
+  };
+  if (description.trim() !== "") {
+    createdPlace.description = description;
+  }
+  await placesRef.add(createdPlace);
+
+  dispatch({ type: STOP_DATA_LOADING });
 };
