@@ -4,8 +4,8 @@ import {
   LOGOUT_USER,
   SET_ERROR,
   CLEAR_ERROR,
-  START_USER_LOADING,
-  STOP_USER_LOADING,
+  START_LOADING,
+  STOP_LOADING,
 } from "../types";
 // Firebase
 import { auth } from "../../utilities/firebase";
@@ -13,18 +13,18 @@ import { auth } from "../../utilities/firebase";
 export const signUpUser = (email, password, confirmPassword, history) => async (
   dispatch
 ) => {
+  // Clear error
+  dispatch({ type: CLEAR_ERROR });
+  // Check if passwords are the same
+  if (password !== confirmPassword) {
+    return dispatch({
+      type: SET_ERROR,
+      payload: "Passwords must be the same.",
+    });
+  }
+  // Start loading
+  dispatch({ type: START_LOADING });
   try {
-    // Clear error
-    dispatch({ type: CLEAR_ERROR });
-    // Check if passwords are the same
-    if (password !== confirmPassword) {
-      return dispatch({
-        type: SET_ERROR,
-        payload: "Passwords must be the same.",
-      });
-    }
-    // Start loading
-    dispatch({ type: START_USER_LOADING });
     // Create new user
     await auth.createUserWithEmailAndPassword(email, password);
     // Set user displayName
@@ -38,8 +38,6 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
     });
     // Set updated user state
     dispatch(setCurrentUser());
-    // Stop loading
-    dispatch({ type: STOP_USER_LOADING });
     // Redirect to home page
     history.push("/");
   } catch (err) {
@@ -48,21 +46,19 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
       type: SET_ERROR,
       payload: err.message,
     });
-    // Stop loading
-    dispatch({ type: STOP_USER_LOADING });
   }
+  // Stop loading
+  dispatch({ type: STOP_LOADING });
 };
 
 export const loginUser = (email, password, history) => async (dispatch) => {
+  // Clear error
+  dispatch({ type: CLEAR_ERROR });
+  // Start loading
+  dispatch({ type: START_LOADING });
   try {
-    // Clear error
-    dispatch({ type: CLEAR_ERROR });
-    // Start loading
-    dispatch({ type: START_USER_LOADING });
     // Login user
     await auth.signInWithEmailAndPassword(email, password);
-    // Stop loading
-    dispatch({ type: STOP_USER_LOADING });
     // Redirect to home page
     history.push("/");
   } catch (err) {
@@ -71,9 +67,9 @@ export const loginUser = (email, password, history) => async (dispatch) => {
       type: SET_ERROR,
       payload: err.message,
     });
-    // Stop loading
-    dispatch({ type: STOP_USER_LOADING });
   }
+  // Stop loading
+  dispatch({ type: STOP_LOADING });
 };
 
 export const setCurrentUser = () => async (dispatch) => {
@@ -96,15 +92,15 @@ export const logoutUser = () => (dispatch) => {
 };
 
 export const changeUserPassword = (email, history) => async (dispatch) => {
+  // Clear error
+  dispatch({ type: CLEAR_ERROR });
+  // Start loading
+  dispatch({ type: START_LOADING });
   try {
-    // Clear error
-    dispatch({ type: CLEAR_ERROR });
-    // Start loading
-    dispatch({ type: START_USER_LOADING });
     // Send email with reset password
     await auth.sendPasswordResetEmail(email);
     // Stop loading
-    dispatch({ type: STOP_USER_LOADING });
+    dispatch({ type: STOP_LOADING });
     // Redirect to login page
     history.push("/login");
   } catch (err) {
@@ -113,9 +109,9 @@ export const changeUserPassword = (email, history) => async (dispatch) => {
       type: SET_ERROR,
       payload: err.message,
     });
-    // Stop loading
-    dispatch({ type: STOP_USER_LOADING });
   }
+  // Stop loading
+  dispatch({ type: STOP_LOADING });
 };
 
 export const clearError = () => (dispatch) => {

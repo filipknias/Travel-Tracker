@@ -8,12 +8,16 @@ import {
   SET_COORDS,
   RESET_COORDS,
   SET_MAP_STYLE,
-  START_DATA_LOADING,
-  STOP_DATA_LOADING,
+  SET_ERROR,
+  CLEAR_ERROR,
+  START_LOADING,
+  STOP_LOADING,
 } from "../types";
 // Firebase
+import app from "../../utilities/firebase";
 import { storage, db } from "../../utilities/firebase";
 import { v4 as uuid } from "uuid";
+import firebase from "firebase";
 
 export const setViewport = (viewport) => (dispatch) => {
   dispatch({
@@ -72,6 +76,10 @@ export const resetCoords = () => (dispatch) => {
   dispatch({ type: RESET_COORDS });
 };
 
+export const clearError = () => (dispatch) => {
+  dispatch({ type: CLEAR_ERROR });
+};
+
 export const addPlace = (
   longitude,
   latitude,
@@ -81,33 +89,70 @@ export const addPlace = (
   photosFiles,
   publicStatus
 ) => async (dispatch) => {
-  dispatch({ type: START_DATA_LOADING });
+  dispatch({ type: START_LOADING });
+  dispatch({ type: CLEAR_ERROR });
 
-  if (location.trim() === "") return;
+  try {
+    if (location.trim() === "") return;
 
-  const photosUrls = photosFiles.map(async (photo) => {
-    const storageRef = storage.ref();
-    const fileRef = storageRef.child(uuid());
-    await fileRef.put(photo);
-    const fileUrl = await fileRef.getDownloadURL();
-    return fileUrl;
-  });
-  const photoUrlsPromisesResolved = await Promise.all(photosUrls);
+    if (publicStatus === true) {
+      if ((await isLocationUnique(location)) === false) {
+        dispatch({
+          type: SET_ERROR,
+          payload: "Place with this location arleady exist",
+        });
+        return dispatch({ type: STOP_LOADING });
+      }
+    }
 
-  const placesRef = db.collection("places");
-  const createdPlace = {
-    longitude,
-    latitude,
-    location,
-    markerColor,
-    photos: photoUrlsPromisesResolved,
-    public: publicStatus,
-    createdAt: Date.now(),
-  };
-  if (description.trim() !== "") {
-    createdPlace.description = description;
+    const photosUrls = photosFiles.map(async (photo) => {
+      const storageRef = storage.ref();
+      const fileRef = storageRef.child(uuid());
+      await fileRef.put(photo);
+      const fileUrl = await fileRef.getDownloadURL();
+      return fileUrl;
+    });
+    const photoUrlsPromisesResolved = await Promise.all(photosUrls);
+
+    const placesRef = db.collection("places");
+
+    const createdPlace = {
+      longitude,
+      latitude,
+      location,
+      markerColor,
+      photos: photoUrlsPromisesResolved,
+      public: publicStatus,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+    if (description.trim() !== "") {
+      createdPlace.description = description;
+    }
+    await placesRef.add(createdPlace);
+  } catch (err) {
+    console.log(err);
+    dispatch({
+      type: SET_ERROR,
+      payload: "Somethink went wrong. Please try again",
+    });
   }
-  await placesRef.add(createdPlace);
 
-  dispatch({ type: STOP_DATA_LOADING });
+  dispatch({ type: STOP_LOADING });
+};
+
+const isLocationUnique = async (location) => {
+  const placesRef = db.collection("places");
+  const foundPlaces = [];
+  const query = placesRef
+    .where("location", "==", location)
+    .where("public", "==", true);
+  const docs = await query.get();
+  docs.forEach((doc) => {
+    foundPlaces.push(doc.data());
+  });
+  if (foundPlaces.length > 0) {
+    return false;
+  } else {
+    return true;
+  }
 };

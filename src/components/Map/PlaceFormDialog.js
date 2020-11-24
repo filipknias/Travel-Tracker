@@ -12,11 +12,17 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogContent from "@material-ui/core/DialogContent";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Alert from "@material-ui/lab/Alert";
 // Icons
 import MarkerIcon from "@material-ui/icons/Room";
 // Redux
+import store from "../../redux/store";
 import { connect } from "react-redux";
-import { resetCoords, addPlace } from "../../redux/actions/dataActions";
+import {
+  resetCoords,
+  addPlace,
+  clearError,
+} from "../../redux/actions/dataActions";
 // FilePond
 import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -25,7 +31,7 @@ import "filepond/dist/filepond.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType);
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   markerColorGroup: {
     display: "flex",
     alignItems: "center",
@@ -33,6 +39,10 @@ const useStyles = makeStyles({
   marker: {
     fontSize: 60,
     marginRight: 20,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 40,
+      marginRight: 5,
+    },
   },
   markerColorPick: {
     borderRadius: "50%",
@@ -42,6 +52,11 @@ const useStyles = makeStyles({
     cursor: "pointer",
     "&:hover": {
       opacity: "0.8",
+    },
+    [theme.breakpoints.down("sm")]: {
+      width: 25,
+      height: 25,
+      margin: "0 5px",
     },
   },
   formSection: {
@@ -53,9 +68,19 @@ const useStyles = makeStyles({
       marginBottom: 10,
     },
   },
-});
+  formAlert: {
+    marginBottom: 20,
+  },
+}));
 
-const PlaceFormDialog = ({ data, open, setOpen, resetCoords, addPlace }) => {
+const PlaceFormDialog = ({
+  data,
+  open,
+  setOpen,
+  resetCoords,
+  clearError,
+  addPlace,
+}) => {
   const classes = useStyles();
   const MARKER_COLORS = [
     "#f44336",
@@ -85,8 +110,9 @@ const PlaceFormDialog = ({ data, open, setOpen, resetCoords, addPlace }) => {
 
   const handleDialogClose = () => {
     setOpen(false);
-    resetCoords();
     setPhotos([]);
+    resetCoords();
+    clearError();
   };
 
   const handleSubmit = async (e) => {
@@ -104,13 +130,21 @@ const PlaceFormDialog = ({ data, open, setOpen, resetCoords, addPlace }) => {
       publicSwitch
     );
 
-    handleDialogClose();
+    const error = store.getState().data.error;
+    if (!error) {
+      handleDialogClose();
+    }
   };
 
   return (
     <Dialog open={open} onClose={handleDialogClose}>
       <DialogTitle>Few more steps to add your place</DialogTitle>
       <DialogContent>
+        {data.error && (
+          <Alert severity="error" className={classes.formAlert}>
+            {data.error}
+          </Alert>
+        )}
         <form onSubmit={handleSubmit}>
           <FormControlLabel
             control={
@@ -194,6 +228,7 @@ PlaceFormDialog.propTypes = {
   setOpen: PropTypes.func.isRequired,
   resetCoords: PropTypes.func.isRequired,
   addPlace: PropTypes.func.isRequired,
+  clearError: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -203,6 +238,7 @@ const mapStateToProps = (state) => ({
 const mapActionsToProps = {
   resetCoords,
   addPlace,
+  clearError,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(PlaceFormDialog);

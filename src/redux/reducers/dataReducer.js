@@ -8,8 +8,10 @@ import {
   SET_COORDS,
   RESET_COORDS,
   SET_MAP_STYLE,
-  START_DATA_LOADING,
-  STOP_DATA_LOADING,
+  SET_ERROR,
+  CLEAR_ERROR,
+  START_LOADING,
+  STOP_LOADING,
 } from "../types";
 
 const DEFAULT_MAP_STYLE = "mapbox://styles/mapbox/streets-v11";
@@ -28,6 +30,7 @@ const initialState = {
   click: false,
   coords: null,
   selectedPlace: null,
+  error: null,
   places: [],
   loading: false,
 };
@@ -76,12 +79,22 @@ export default function (state = initialState, action) {
         ...state,
         mapStyle: action.payload,
       };
-    case START_DATA_LOADING:
+    case SET_ERROR:
+      return {
+        ...state,
+        error: action.payload,
+      };
+    case CLEAR_ERROR:
+      return {
+        ...state,
+        error: null,
+      };
+    case START_LOADING:
       return {
         ...state,
         loading: true,
       };
-    case STOP_DATA_LOADING:
+    case STOP_LOADING:
       return {
         ...state,
         loading: false,
