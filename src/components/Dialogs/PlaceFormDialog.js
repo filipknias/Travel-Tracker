@@ -23,6 +23,7 @@ import {
   addPlace,
   clearError,
 } from "../../redux/actions/dataActions";
+import { setPlaceFormDialogOpen } from "../../redux/actions/interfaceActions";
 // FilePond
 import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -82,11 +83,11 @@ const useStyles = makeStyles((theme) => ({
 
 const PlaceFormDialog = ({
   data,
-  open,
-  setOpen,
+  dialogOpen,
   resetCoords,
   clearError,
   addPlace,
+  setPlaceFormDialogOpen,
 }) => {
   const classes = useStyles();
   const MARKER_COLORS = [
@@ -116,7 +117,7 @@ const PlaceFormDialog = ({
   };
 
   const handleDialogClose = () => {
-    setOpen(false);
+    setPlaceFormDialogOpen(false);
     setPhotos([]);
     resetCoords();
     clearError();
@@ -144,7 +145,7 @@ const PlaceFormDialog = ({
   };
 
   return (
-    <Dialog open={open} onClose={handleDialogClose}>
+    <Dialog open={dialogOpen} onClose={handleDialogClose}>
       <DialogTitle>Few more steps to add your place</DialogTitle>
       <DialogContent>
         {data.error && (
@@ -231,21 +232,23 @@ const PlaceFormDialog = ({
 
 PlaceFormDialog.propTypes = {
   data: PropTypes.object.isRequired,
-  open: PropTypes.bool.isRequired,
-  setOpen: PropTypes.func.isRequired,
+  dialogOpen: PropTypes.bool.isRequired,
   resetCoords: PropTypes.func.isRequired,
   addPlace: PropTypes.func.isRequired,
   clearError: PropTypes.func.isRequired,
+  setPlaceFormDialogOpen: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   data: state.data,
+  dialogOpen: state.interface.dialogsOpen.placeForm,
 });
 
 const mapActionsToProps = {
   resetCoords,
   addPlace,
   clearError,
+  setPlaceFormDialogOpen,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(PlaceFormDialog);

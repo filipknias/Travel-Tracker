@@ -1,7 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-// Components
-import PlaceFormDialog from "../Dialogs/PlaceFormDialog";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Snackbar from "@material-ui/core/Snackbar";
@@ -14,6 +12,7 @@ import AddPlaceIcon from "@material-ui/icons/AddPhotoAlternate";
 // Redux
 import { connect } from "react-redux";
 import { mapUnClick, resetClick } from "../../redux/actions/dataActions";
+import { setPlaceFormDialogOpen } from "../../redux/actions/interfaceActions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,12 +21,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MapPopup = ({ user, data, mapUnClick, resetClick }) => {
+const MapPopup = ({
+  user,
+  data,
+  mapUnClick,
+  resetClick,
+  setPlaceFormDialogOpen,
+}) => {
   const classes = useStyles();
-  const [formDialogOpen, setFormDialogOpen] = useState(false);
 
   const handleDialogOpen = () => {
-    setFormDialogOpen(true);
+    setPlaceFormDialogOpen(true);
     resetClick();
   };
 
@@ -42,42 +46,39 @@ const MapPopup = ({ user, data, mapUnClick, resetClick }) => {
         onClose={mapUnClick}
       >
         {data.coords && (
-          <>
-            <SnackbarContent
-              classes={classes}
-              message={`Lng. ${data.coords[0].toFixed(
-                3
-              )}, Lat. ${data.coords[1].toFixed(3)}`}
-              action={
-                <>
-                  {user.auth && (
-                    <Tooltip title="Add Place">
-                      <IconButton
-                        size="small"
-                        color="inherit"
-                        onClick={handleDialogOpen}
-                      >
-                        <AddPlaceIcon />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  <Tooltip title="Close">
+          <SnackbarContent
+            classes={classes}
+            message={`Lng. ${data.coords[0].toFixed(
+              3
+            )}, Lat. ${data.coords[1].toFixed(3)}`}
+            action={
+              <>
+                {user.auth && (
+                  <Tooltip title="Add Place">
                     <IconButton
                       size="small"
                       color="inherit"
-                      onClick={mapUnClick}
-                      style={{ marginLeft: 5 }}
+                      onClick={handleDialogOpen}
                     >
-                      <CloseIcon />
+                      <AddPlaceIcon />
                     </IconButton>
                   </Tooltip>
-                </>
-              }
-            />
-          </>
+                )}
+                <Tooltip title="Close">
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    onClick={mapUnClick}
+                    style={{ marginLeft: 5 }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Tooltip>
+              </>
+            }
+          />
         )}
       </Snackbar>
-      <PlaceFormDialog open={formDialogOpen} setOpen={setFormDialogOpen} />
     </>
   );
 };
@@ -87,6 +88,7 @@ MapPopup.propTypes = {
   data: PropTypes.object.isRequired,
   mapUnClick: PropTypes.func.isRequired,
   resetClick: PropTypes.func.isRequired,
+  setPlaceFormDialogOpen: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -97,6 +99,7 @@ const mapStateToProps = (state) => ({
 const mapActionsToProps = {
   mapUnClick,
   resetClick,
+  setPlaceFormDialogOpen,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(MapPopup);

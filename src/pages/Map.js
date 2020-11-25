@@ -4,6 +4,7 @@ import ReactMapGL from "react-map-gl";
 // Components
 import MapButtons from "../components/Map/MapButtons";
 import MapPopup from "../components/Map/MapPopup";
+import PlaceFormDialog from "../components/Dialogs/PlaceFormDialog";
 // Redux
 import { connect } from "react-redux";
 import {
@@ -59,6 +60,7 @@ const Map = ({
       ></ReactMapGL>
       <MapButtons />
       <MapPopup />
+      <PlaceFormDialog />
     </>
   );
 };

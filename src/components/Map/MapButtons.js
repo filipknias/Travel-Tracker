@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 // Components
-import MapThemeDialog from "./MapThemeDialog";
+import MapThemeDialog from "../Dialogs/MapThemeDialog";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -16,9 +16,11 @@ import Checkbox from "@material-ui/core/Checkbox";
 // Icons
 import LocationIcon from "@material-ui/icons/GpsFixed";
 import OptionsIcon from "@material-ui/icons/Settings";
+import ThemeIcon from "@material-ui/icons/Explore";
 // Redux
 import { connect } from "react-redux";
 import { setCurrentUserPosition } from "../../redux/actions/dataActions";
+import { setMapThemeDialogOpen } from "../../redux/actions/interfaceActions";
 
 const useStyles = makeStyles((theme) => ({
   mapBtn: {
@@ -43,7 +45,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MapButtons = ({ data, setCurrentUserPosition }) => {
+const MapButtons = ({
+  data,
+  setCurrentUserPosition,
+  setMapThemeDialogOpen,
+}) => {
   const classes = useStyles();
   // State
   const [anchorEl, setAnchorEl] = useState(null);
@@ -51,38 +57,46 @@ const MapButtons = ({ data, setCurrentUserPosition }) => {
 
   const OptionsPopover = () => {
     return (
-      <Popover
-        open={open}
-        anchorEl={anchorEl}
-        onClose={() => setAnchorEl(null)}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-      >
-        <Typography variant="subtitle1" className={classes.popoverHeader}>
-          Map Options
-        </Typography>
-        <List>
-          <MapThemeDialog setAnchorEl={setAnchorEl} />
-          <ListItem button>
-            <ListItemIcon>
-              <Checkbox checked={false} />
-            </ListItemIcon>
-            <ListItemText primary="Public Places" />
-          </ListItem>
-          <ListItem button>
-            <ListItemIcon>
-              <Checkbox checked={false} />
-            </ListItemIcon>
-            <ListItemText primary="My Places" />
-          </ListItem>
-        </List>
-      </Popover>
+      <>
+        <Popover
+          open={open}
+          anchorEl={anchorEl}
+          onClose={() => setAnchorEl(null)}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          transformOrigin={{
+            vertical: "bottom",
+            horizontal: "center",
+          }}
+        >
+          <Typography variant="subtitle1" className={classes.popoverHeader}>
+            Map Options
+          </Typography>
+          <List>
+            <ListItem onClick={() => setMapThemeDialogOpen(true)} button>
+              <ListItemIcon>
+                <ThemeIcon className={classes.themeIcon} />
+              </ListItemIcon>
+              <ListItemText primary="Map Theme" />
+            </ListItem>
+            <ListItem button>
+              <ListItemIcon>
+                <Checkbox checked={false} />
+              </ListItemIcon>
+              <ListItemText primary="Public Places" />
+            </ListItem>
+            <ListItem button>
+              <ListItemIcon>
+                <Checkbox checked={false} />
+              </ListItemIcon>
+              <ListItemText primary="My Places" />
+            </ListItem>
+          </List>
+        </Popover>
+        <MapThemeDialog setAnchorEl={setAnchorEl} />
+      </>
     );
   };
 
@@ -114,6 +128,7 @@ const MapButtons = ({ data, setCurrentUserPosition }) => {
 MapButtons.propTypes = {
   data: PropTypes.object.isRequired,
   setCurrentUserPosition: PropTypes.func.isRequired,
+  setMapThemeDialogOpen: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -122,6 +137,7 @@ const mapStateToProps = (state) => ({
 
 const mapActionsToProps = {
   setCurrentUserPosition,
+  setMapThemeDialogOpen,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(MapButtons);
