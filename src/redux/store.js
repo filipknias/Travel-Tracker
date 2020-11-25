@@ -3,6 +3,7 @@ import thunk from "redux-thunk";
 
 import userReducer from "./reducers/userReducer";
 import dataReducer from "./reducers/dataReducer";
+import interfaceReducer from "./reducers/interfaceReducer";
 
 const initialState = {};
 const middleware = [thunk];
@@ -10,6 +11,7 @@ const middleware = [thunk];
 const reducers = combineReducers({
   user: userReducer,
   data: dataReducer,
+  interface: interfaceReducer,
 });
 
 const composeEnhancers =

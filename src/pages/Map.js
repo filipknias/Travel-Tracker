@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import ReactMapGL from "react-map-gl";
 // Components
 import MapButtons from "../components/Map/MapButtons";
-import PlaceFormDialog from "../components/Map/PlaceFormDialog";
 import MapPopup from "../components/Map/MapPopup";
 // Redux
 import { connect } from "react-redux";
@@ -24,7 +23,6 @@ const Map = ({
   // State
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-  const [formDialogOpen, setFormDialogOpen] = useState(false);
 
   const updateWindowSize = () => {
     setWindowWidth(window.innerWidth);
@@ -60,16 +58,7 @@ const Map = ({
         onMouseDown={mapUnClick}
       ></ReactMapGL>
       <MapButtons />
-      {data.coords && (
-        <>
-          <MapPopup setDialogOpen={setFormDialogOpen} />
-          <PlaceFormDialog
-            open={formDialogOpen}
-            setOpen={setFormDialogOpen}
-            coords={data.coords}
-          />
-        </>
-      )}
+      <MapPopup />
     </>
   );
 };

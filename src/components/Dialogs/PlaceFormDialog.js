@@ -35,6 +35,7 @@ const useStyles = makeStyles((theme) => ({
   markerColorGroup: {
     display: "flex",
     alignItems: "center",
+    justifyContent: "space-between",
   },
   marker: {
     fontSize: 60,
@@ -70,6 +71,12 @@ const useStyles = makeStyles((theme) => ({
   },
   formAlert: {
     marginBottom: 20,
+  },
+  filePondText: {
+    marginBottom: 10,
+    [theme.breakpoints.down("sm")]: {
+      textAlign: "center",
+    },
   },
 }));
 
@@ -187,7 +194,7 @@ const PlaceFormDialog = ({
             </div>
           </div>
           <div className={classes.formSection}>
-            <Typography variant="subtitle1" style={{ marginBottom: 10 }}>
+            <Typography variant="subtitle1" className={classes.filePondText}>
               Import photos from this place
             </Typography>
             <FilePond

@@ -14,7 +14,6 @@ import {
   STOP_LOADING,
 } from "../types";
 // Firebase
-import app from "../../utilities/firebase";
 import { storage, db } from "../../utilities/firebase";
 import { v4 as uuid } from "uuid";
 import firebase from "firebase";
