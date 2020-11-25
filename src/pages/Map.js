@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import ReactMapGL, { Marker } from "react-map-gl";
+import ReactMapGL from "react-map-gl";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Backdrop from "@material-ui/core/Backdrop";
@@ -9,8 +9,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import MapButtons from "../components/Map/MapButtons";
 import MapPopup from "../components/Map/MapPopup";
 import PlaceFormDialog from "../components/Dialogs/PlaceFormDialog";
-// Icons
-import MarkerIcon from "@material-ui/icons/Room";
+import PlaceMarker from "../components/Map/PlaceMarker";
 // Redux
 import { connect } from "react-redux";
 import {
@@ -25,10 +24,6 @@ const useStyles = makeStyles({
   backdrop: {
     zIndex: 10,
     color: "#fff",
-  },
-  placeMarker: {
-    fontSize: 50,
-    cursor: "pointer",
   },
 });
 
@@ -82,13 +77,8 @@ const Map = ({
         onClick={(PointerEvent) => mapClick(PointerEvent.lngLat)}
         onMouseDown={mapUnClick}
       >
-        {data.places.map((place) => (
-          <Marker latitude={place.latitude} longitude={place.longitude}>
-            <MarkerIcon
-              className={classes.placeMarker}
-              style={{ color: place.markerColor }}
-            />
-          </Marker>
+        {data.places.map((place, index) => (
+          <PlaceMarker key={index} place={place} />
         ))}
       </ReactMapGL>
       <Backdrop open={data.loading} className={classes.backdrop}>
