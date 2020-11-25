@@ -4,7 +4,6 @@ import {
   SET_SELECTED_PLACE,
   SET_PLACES,
   SET_CLICK,
-  RESET_CLICK,
   SET_COORDS,
   RESET_COORDS,
   SET_MAP_STYLE,
@@ -52,12 +51,7 @@ export default function (state = initialState, action) {
     case SET_CLICK:
       return {
         ...state,
-        click: true,
-      };
-    case RESET_CLICK:
-      return {
-        ...state,
-        click: false,
+        click: action.payload,
       };
     case SET_COORDS:
       return {

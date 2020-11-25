@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import ReactMapGL from "react-map-gl";
+import ReactMapGL, { Marker } from "react-map-gl";
+// Material UI
+import { makeStyles } from "@material-ui/core/styles";
+import Backdrop from "@material-ui/core/Backdrop";
+import CircularProgress from "@material-ui/core/CircularProgress";
 // Components
 import MapButtons from "../components/Map/MapButtons";
 import MapPopup from "../components/Map/MapPopup";
 import PlaceFormDialog from "../components/Dialogs/PlaceFormDialog";
+// Icons
+import MarkerIcon from "@material-ui/icons/Room";
 // Redux
 import { connect } from "react-redux";
 import {
@@ -12,7 +18,19 @@ import {
   setCurrentUserPosition,
   mapClick,
   mapUnClick,
+  getPublicPlaces,
 } from "../redux/actions/dataActions";
+
+const useStyles = makeStyles({
+  backdrop: {
+    zIndex: 10,
+    color: "#fff",
+  },
+  placeMarker: {
+    fontSize: 50,
+    cursor: "pointer",
+  },
+});
 
 const Map = ({
   data,
@@ -20,7 +38,9 @@ const Map = ({
   setCurrentUserPosition,
   mapClick,
   mapUnClick,
+  getPublicPlaces,
 }) => {
+  const classes = useStyles();
   // State
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
@@ -43,9 +63,13 @@ const Map = ({
     return () => window.removeEventListener("resize", updateWindowSize);
   }, [windowWidth, windowHeight]);
 
-  // Set current user position
+  // Set current user position and get places
   useEffect(() => {
+    const placesSetup = async () => {
+      await getPublicPlaces();
+    };
     setCurrentUserPosition(data.viewport);
+    placesSetup();
   }, []);
 
   return (
@@ -57,7 +81,19 @@ const Map = ({
         mapStyle={data.mapStyle}
         onClick={(PointerEvent) => mapClick(PointerEvent.lngLat)}
         onMouseDown={mapUnClick}
-      ></ReactMapGL>
+      >
+        {data.places.map((place) => (
+          <Marker latitude={place.latitude} longitude={place.longitude}>
+            <MarkerIcon
+              className={classes.placeMarker}
+              style={{ color: place.markerColor }}
+            />
+          </Marker>
+        ))}
+      </ReactMapGL>
+      <Backdrop open={data.loading} className={classes.backdrop}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <MapButtons />
       <MapPopup />
       <PlaceFormDialog />
@@ -71,6 +107,7 @@ Map.propTypes = {
   setCurrentUserPosition: PropTypes.func.isRequired,
   mapClick: PropTypes.func.isRequired,
   mapUnClick: PropTypes.func.isRequired,
+  getPublicPlaces: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -82,6 +119,7 @@ const mapActionsToProps = {
   setCurrentUserPosition,
   mapClick,
   mapUnClick,
+  getPublicPlaces,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Map);

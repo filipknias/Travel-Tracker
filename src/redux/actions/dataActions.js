@@ -4,7 +4,6 @@ import {
   SET_SELECTED_PLACE,
   SET_PLACES,
   SET_CLICK,
-  RESET_CLICK,
   SET_COORDS,
   RESET_COORDS,
   SET_MAP_STYLE,
@@ -14,9 +13,9 @@ import {
   STOP_LOADING,
 } from "../types";
 // Firebase
+import firebase from "firebase/app";
 import { storage, db } from "../../utilities/firebase";
 import { v4 as uuid } from "uuid";
-import firebase from "firebase";
 
 export const setViewport = (viewport) => (dispatch) => {
   dispatch({
@@ -47,17 +46,20 @@ export const setMapStyle = (mapStyleURL) => (dispatch) => {
 };
 
 export const mapClick = (coords) => (dispatch) => {
-  dispatch(setClick());
+  dispatch(setClick(true));
   dispatch(setCoords(coords));
 };
 
 export const mapUnClick = () => (dispatch) => {
-  dispatch(resetClick());
+  dispatch(setClick(false));
   dispatch(resetCoords());
 };
 
-export const setClick = () => (dispatch) => {
-  dispatch({ type: SET_CLICK });
+export const setClick = (click) => (dispatch) => {
+  dispatch({
+    type: SET_CLICK,
+    payload: click,
+  });
 };
 
 export const setCoords = (coords) => (dispatch) => {
@@ -67,16 +69,29 @@ export const setCoords = (coords) => (dispatch) => {
   });
 };
 
-export const resetClick = () => (dispatch) => {
-  dispatch({ type: RESET_CLICK });
-};
-
 export const resetCoords = () => (dispatch) => {
   dispatch({ type: RESET_COORDS });
 };
 
 export const clearError = () => (dispatch) => {
   dispatch({ type: CLEAR_ERROR });
+};
+
+const isLocationUnique = async (location) => {
+  const placesRef = db.collection("places");
+  const foundPlaces = [];
+  const query = placesRef
+    .where("location", "==", location)
+    .where("public", "==", true);
+  const docs = await query.get();
+  docs.forEach((doc) => {
+    foundPlaces.push(doc.data());
+  });
+  if (foundPlaces.length > 0) {
+    return false;
+  } else {
+    return true;
+  }
 };
 
 export const addPlace = (
@@ -139,19 +154,20 @@ export const addPlace = (
   dispatch({ type: STOP_LOADING });
 };
 
-const isLocationUnique = async (location) => {
+export const getPublicPlaces = () => async (dispatch) => {
+  dispatch({ type: START_LOADING });
+
+  const publicPlaces = [];
   const placesRef = db.collection("places");
-  const foundPlaces = [];
-  const query = placesRef
-    .where("location", "==", location)
-    .where("public", "==", true);
+  const query = placesRef.where("public", "==", true);
   const docs = await query.get();
   docs.forEach((doc) => {
-    foundPlaces.push(doc.data());
+    publicPlaces.push(doc.data());
   });
-  if (foundPlaces.length > 0) {
-    return false;
-  } else {
-    return true;
-  }
+  dispatch({
+    type: SET_PLACES,
+    payload: publicPlaces,
+  });
+
+  dispatch({ type: STOP_LOADING });
 };

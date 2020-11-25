@@ -11,7 +11,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import AddPlaceIcon from "@material-ui/icons/AddPhotoAlternate";
 // Redux
 import { connect } from "react-redux";
-import { mapUnClick, resetClick } from "../../redux/actions/dataActions";
+import { mapUnClick, setClick } from "../../redux/actions/dataActions";
 import { setPlaceFormDialogOpen } from "../../redux/actions/interfaceActions";
 
 const useStyles = makeStyles((theme) => ({
@@ -25,14 +25,14 @@ const MapPopup = ({
   user,
   data,
   mapUnClick,
-  resetClick,
+  setClick,
   setPlaceFormDialogOpen,
 }) => {
   const classes = useStyles();
 
   const handleDialogOpen = () => {
     setPlaceFormDialogOpen(true);
-    resetClick();
+    setClick(false);
   };
 
   return (
@@ -87,7 +87,7 @@ MapPopup.propTypes = {
   user: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
   mapUnClick: PropTypes.func.isRequired,
-  resetClick: PropTypes.func.isRequired,
+  setClick: PropTypes.func.isRequired,
   setPlaceFormDialogOpen: PropTypes.func.isRequired,
 };
 
@@ -98,7 +98,7 @@ const mapStateToProps = (state) => ({
 
 const mapActionsToProps = {
   mapUnClick,
-  resetClick,
+  setClick,
   setPlaceFormDialogOpen,
 };
 

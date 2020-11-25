@@ -5,7 +5,6 @@ export const LOGOUT_USER = "LOGOUT_USER";
 export const SET_VIEWPORT = "SET_VIEWPORT";
 export const SET_SELECTED_PLACE = "SET_SELECTED_PLACE";
 export const SET_CLICK = "SET_CLICK";
-export const RESET_CLICK = "RESET_CLICK";
 export const SET_COORDS = "SET_COORDS";
 export const RESET_COORDS = "RESET_COORDS";
 export const SET_PLACES = "SET_PLACES";
