@@ -13,6 +13,11 @@ import DialogContent from "@material-ui/core/DialogContent";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Alert from "@material-ui/lab/Alert";
+import DateFnsUtils from "@date-io/date-fns";
+import {
+  MuiPickersUtilsProvider,
+  KeyboardDatePicker,
+} from "@material-ui/pickers";
 // Icons
 import MarkerIcon from "@material-ui/icons/Room";
 // Redux
@@ -105,6 +110,7 @@ const PlaceFormDialog = ({
   const [markerColor, setMarkerColor] = useState(MARKER_COLORS[0]);
   const [photos, setPhotos] = useState([]);
   const [publicSwitch, setPublicSwitch] = useState(false);
+  const [visitDate, setVisitDate] = useState(new Date());
   // Refs
   const locationRef = useRef();
   const descriptionRef = useRef();
@@ -138,7 +144,8 @@ const PlaceFormDialog = ({
       descriptionValue,
       markerColor,
       photos,
-      publicSwitch
+      publicSwitch,
+      visitDate
     );
 
     const error = store.getState().data.error;
@@ -213,6 +220,17 @@ const PlaceFormDialog = ({
                 setPhotos(files.map((fileItem) => fileItem.file))
               }
             />
+          </div>
+          <div className={classes.formSection}>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <KeyboardDatePicker
+                disableToolbar
+                format="MM/dd/yyyy"
+                label="Visit Date"
+                value={visitDate}
+                onChange={(date) => setVisitDate(date)}
+              />
+            </MuiPickersUtilsProvider>
           </div>
           <div className={classes.formSection}>
             <Button

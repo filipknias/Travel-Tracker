@@ -114,7 +114,8 @@ export const addPlace = (
   description,
   markerColor,
   photosFiles,
-  publicStatus
+  publicStatus,
+  visitDate
 ) => async (dispatch) => {
   dispatch({ type: START_LOADING });
   dispatch({ type: CLEAR_ERROR });
@@ -150,6 +151,7 @@ export const addPlace = (
       markerColor,
       photos: photoUrlsPromisesResolved,
       public: publicStatus,
+      visitDate,
       userId: auth.currentUser.uid,
       commentCount: 0,
       ratingAvg: 0,
@@ -159,8 +161,7 @@ export const addPlace = (
       createdPlace.description = description;
     }
     await placesRef.add(createdPlace);
-  } catch (err) {
-    console.log(err);
+  } catch {
     dispatch({
       type: SET_ERROR,
       payload: "Somethink went wrong. Please try again",

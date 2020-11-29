@@ -50,21 +50,35 @@ const PlaceDialog = ({
     clearSelectedPlace();
   };
 
+  const formatVisitDate = () => {
+    const dateToFormat = data.selectedPlace.visitDate;
+    const dateString = dateToFormat.toDate().toDateString();
+    const formattedDate = dateString.substr(4, dateString.length);
+    return formattedDate;
+  };
+
   const AboutPlace = () => {
     return (
       <>
+        <Typography variant="subtitle2">
+          Visit Date: {formatVisitDate()}
+        </Typography>
         <Typography variant="h5">{data.selectedPlace.location}</Typography>
-        {data.selectedPlace.description ? (
-          <Typography variant="body1">
-            {data.selectedPlace.description}
-          </Typography>
-        ) : (
-          <Typography variant="body1">No description</Typography>
-        )}
+        <div style={{ marginTop: 5 }}>
+          {data.selectedPlace.description ? (
+            <Typography variant="body1">
+              {data.selectedPlace.description}
+            </Typography>
+          ) : (
+            <Typography variant="body1">No description</Typography>
+          )}
+        </div>
         <div className={classes.photosGroup}>
-          <Button color="primary" className={classes.slideshowBtn}>
-            Slideshow
-          </Button>
+          {data.selectedPlace.photos.length > 1 && (
+            <Button color="primary" className={classes.slideshowBtn}>
+              Slideshow
+            </Button>
+          )}
           {data.selectedPlace.photos.map((photoUrl, index) => (
             <img
               className={classes.photo}
