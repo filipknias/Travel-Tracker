@@ -2,7 +2,9 @@
 import {
   SET_VIEWPORT,
   SET_SELECTED_PLACE,
+  CLEAR_SELECTED_PLACE,
   SET_PLACES,
+  CLEAR_PLACES,
   SET_CLICK,
   SET_COORDS,
   RESET_COORDS,
@@ -48,6 +50,11 @@ export default function (state = initialState, action) {
         ...state,
         selectedPlace: action.payload,
       };
+    case CLEAR_SELECTED_PLACE:
+      return {
+        ...state,
+        selectedPlace: null,
+      };
     case SET_CLICK:
       return {
         ...state,
@@ -66,7 +73,12 @@ export default function (state = initialState, action) {
     case SET_PLACES:
       return {
         ...state,
-        places: [...action.payload],
+        places: [...state.places, ...action.payload],
+      };
+    case CLEAR_PLACES:
+      return {
+        ...state,
+        places: [],
       };
     case SET_MAP_STYLE:
       return {

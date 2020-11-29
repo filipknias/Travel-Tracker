@@ -21,10 +21,5 @@ export default {
         fontSize: 14,
       },
     },
-    MuiDialogTitle: {
-      root: {
-        textAlign: "center",
-      },
-    },
   },
 };

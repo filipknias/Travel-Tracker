@@ -2,7 +2,9 @@
 import {
   SET_VIEWPORT,
   SET_SELECTED_PLACE,
+  CLEAR_SELECTED_PLACE,
   SET_PLACES,
+  CLEAR_PLACES,
   SET_CLICK,
   SET_COORDS,
   RESET_COORDS,
@@ -14,7 +16,7 @@ import {
 } from "../types";
 // Firebase
 import firebase from "firebase/app";
-import { storage, db } from "../../utilities/firebase";
+import { storage, db, auth } from "../../utilities/firebase";
 import { v4 as uuid } from "uuid";
 
 export const setViewport = (viewport) => (dispatch) => {
@@ -43,6 +45,17 @@ export const setMapStyle = (mapStyleURL) => (dispatch) => {
     type: SET_MAP_STYLE,
     payload: mapStyleURL,
   });
+};
+
+export const setSelectedPlace = (place) => (dispatch) => {
+  dispatch({
+    type: SET_SELECTED_PLACE,
+    payload: place,
+  });
+};
+
+export const clearSelectedPlace = () => (dispatch) => {
+  dispatch({ type: CLEAR_SELECTED_PLACE });
 };
 
 export const mapClick = (coords) => (dispatch) => {
@@ -137,6 +150,9 @@ export const addPlace = (
       markerColor,
       photos: photoUrlsPromisesResolved,
       public: publicStatus,
+      userId: auth.currentUser.uid,
+      commentCount: 0,
+      ratingAvg: 0,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     };
     if (description.trim() !== "") {
@@ -159,7 +175,9 @@ export const getPublicPlaces = () => async (dispatch) => {
 
   const publicPlaces = [];
   const placesRef = db.collection("places");
-  const query = placesRef.where("public", "==", true);
+  const query = placesRef
+    .where("public", "==", true)
+    .where("userId", "!=", auth.currentUser.uid);
   const docs = await query.get();
   docs.forEach((doc) => {
     publicPlaces.push(doc.data());
@@ -170,4 +188,44 @@ export const getPublicPlaces = () => async (dispatch) => {
   });
 
   dispatch({ type: STOP_LOADING });
+};
+
+export const getUserPlaces = (userId) => async (dispatch) => {
+  dispatch({ type: START_LOADING });
+
+  const userPlaces = [];
+  const placesRef = db.collection("places");
+  const query = placesRef.where("userId", "==", userId);
+  const docs = await query.get();
+  docs.forEach((doc) => {
+    userPlaces.push(doc.data());
+  });
+  dispatch({
+    type: SET_PLACES,
+    payload: userPlaces,
+  });
+
+  dispatch({ type: STOP_LOADING });
+};
+
+export const getAllPlaces = () => async (dispatch) => {
+  dispatch({ type: START_LOADING });
+
+  const places = [];
+  const placesRef = db.collection("places");
+  const query = placesRef.orderBy("createdAt").limit(100);
+  const docs = await query.get();
+  docs.forEach((doc) => {
+    places.push(doc.data());
+  });
+  dispatch({
+    type: SET_PLACES,
+    payload: places,
+  });
+
+  dispatch({ type: STOP_LOADING });
+};
+
+export const clearPlaces = () => (dispatch) => {
+  dispatch({ type: CLEAR_PLACES });
 };

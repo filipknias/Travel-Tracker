@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 // Components
 import MapThemeDialog from "../Dialogs/MapThemeDialog";
@@ -19,8 +19,16 @@ import OptionsIcon from "@material-ui/icons/Settings";
 import ThemeIcon from "@material-ui/icons/Explore";
 // Redux
 import { connect } from "react-redux";
-import { setCurrentUserPosition } from "../../redux/actions/dataActions";
+import {
+  setCurrentUserPosition,
+  getPublicPlaces,
+  getUserPlaces,
+  getAllPlaces,
+  clearPlaces,
+} from "../../redux/actions/dataActions";
 import { setMapThemeDialogOpen } from "../../redux/actions/interfaceActions";
+// Firebase
+import { auth, db } from "../../utilities/firebase";
 
 const useStyles = makeStyles((theme) => ({
   mapBtn: {
@@ -49,10 +57,16 @@ const MapButtons = ({
   data,
   setCurrentUserPosition,
   setMapThemeDialogOpen,
+  getPublicPlaces,
+  getUserPlaces,
+  getAllPlaces,
+  clearPlaces,
 }) => {
   const classes = useStyles();
   // State
   const [anchorEl, setAnchorEl] = useState(null);
+  const [publicPlaces, setPublicPlaces] = useState(true);
+  const [userPlaces, setUserPlaces] = useState(true);
   const open = Boolean(anchorEl);
 
   const OptionsPopover = () => {
@@ -81,15 +95,21 @@ const MapButtons = ({
               </ListItemIcon>
               <ListItemText primary="Map Theme" />
             </ListItem>
-            <ListItem button>
+            <ListItem
+              onClick={() => setPublicPlaces((publicPlaces) => !publicPlaces)}
+              button
+            >
               <ListItemIcon>
-                <Checkbox checked={false} />
+                <Checkbox checked={publicPlaces} />
               </ListItemIcon>
               <ListItemText primary="Public Places" />
             </ListItem>
-            <ListItem button>
+            <ListItem
+              onClick={() => setUserPlaces((userPlaces) => !userPlaces)}
+              button
+            >
               <ListItemIcon>
-                <Checkbox checked={false} />
+                <Checkbox checked={userPlaces} />
               </ListItemIcon>
               <ListItemText primary="My Places" />
             </ListItem>
@@ -100,18 +120,52 @@ const MapButtons = ({
     );
   };
 
+  const updatePlaces = () => {
+    if (publicPlaces === true && userPlaces === true) {
+      getAllPlaces();
+    }
+
+    if (publicPlaces === false && userPlaces === false) {
+      clearPlaces();
+    }
+
+    if (publicPlaces === true && userPlaces === false) {
+      getPublicPlaces();
+    }
+
+    if (userPlaces === true && publicPlaces === false) {
+      getUserPlaces(auth.currentUser.uid);
+    }
+  };
+
+  useEffect(() => {
+    updatePlaces();
+    setAnchorEl(null);
+  }, [publicPlaces, userPlaces]);
+
+  useEffect(() => {
+    const placesCollection = db.collection("places");
+    placesCollection.onSnapshot(() => {
+      updatePlaces();
+    });
+  }, []);
+
   return (
     <div className={classes.btnGroup}>
-      <Tooltip title="Options">
-        <Button
-          variant="contained"
-          className={classes.mapBtn}
-          onClick={(e) => setAnchorEl(e.currentTarget)}
-        >
-          <OptionsIcon />
-        </Button>
-      </Tooltip>
-      <OptionsPopover />
+      {auth.currentUser && (
+        <>
+          <Tooltip title="Options">
+            <Button
+              variant="contained"
+              className={classes.mapBtn}
+              onClick={(e) => setAnchorEl(e.currentTarget)}
+            >
+              <OptionsIcon />
+            </Button>
+          </Tooltip>
+          <OptionsPopover />
+        </>
+      )}
       <Tooltip title="My Location">
         <Button
           variant="contained"
@@ -129,6 +183,10 @@ MapButtons.propTypes = {
   data: PropTypes.object.isRequired,
   setCurrentUserPosition: PropTypes.func.isRequired,
   setMapThemeDialogOpen: PropTypes.func.isRequired,
+  getPublicPlaces: PropTypes.func.isRequired,
+  getUserPlaces: PropTypes.func.isRequired,
+  getAllPlaces: PropTypes.func.isRequired,
+  clearPlaces: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -138,6 +196,10 @@ const mapStateToProps = (state) => ({
 const mapActionsToProps = {
   setCurrentUserPosition,
   setMapThemeDialogOpen,
+  getPublicPlaces,
+  getUserPlaces,
+  getAllPlaces,
+  clearPlaces,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(MapButtons);

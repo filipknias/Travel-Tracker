@@ -9,6 +9,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import MapButtons from "../components/Map/MapButtons";
 import MapPopup from "../components/Map/MapPopup";
 import PlaceFormDialog from "../components/Dialogs/PlaceFormDialog";
+import PlaceDialog from "../components/Dialogs/PlaceDialog";
 import PlaceMarker from "../components/Map/PlaceMarker";
 // Redux
 import { connect } from "react-redux";
@@ -17,7 +18,6 @@ import {
   setCurrentUserPosition,
   mapClick,
   mapUnClick,
-  getPublicPlaces,
 } from "../redux/actions/dataActions";
 
 const useStyles = makeStyles({
@@ -33,7 +33,6 @@ const Map = ({
   setCurrentUserPosition,
   mapClick,
   mapUnClick,
-  getPublicPlaces,
 }) => {
   const classes = useStyles();
   // State
@@ -60,11 +59,7 @@ const Map = ({
 
   // Set current user position and get places
   useEffect(() => {
-    const placesSetup = async () => {
-      await getPublicPlaces();
-    };
     setCurrentUserPosition(data.viewport);
-    placesSetup();
   }, []);
 
   return (
@@ -87,6 +82,7 @@ const Map = ({
       <MapButtons />
       <MapPopup />
       <PlaceFormDialog />
+      {data.selectedPlace && <PlaceDialog />}
     </>
   );
 };
@@ -97,7 +93,6 @@ Map.propTypes = {
   setCurrentUserPosition: PropTypes.func.isRequired,
   mapClick: PropTypes.func.isRequired,
   mapUnClick: PropTypes.func.isRequired,
-  getPublicPlaces: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -109,7 +104,6 @@ const mapActionsToProps = {
   setCurrentUserPosition,
   mapClick,
   mapUnClick,
-  getPublicPlaces,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(Map);

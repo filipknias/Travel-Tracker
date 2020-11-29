@@ -33,6 +33,9 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType);
 
 const useStyles = makeStyles((theme) => ({
+  dialogTitle: {
+    textAlign: "center",
+  },
   markerColorGroup: {
     display: "flex",
     alignItems: "center",
@@ -146,7 +149,9 @@ const PlaceFormDialog = ({
 
   return (
     <Dialog open={dialogOpen} onClose={handleDialogClose}>
-      <DialogTitle>Few more steps to add your place</DialogTitle>
+      <DialogTitle className={classes.dialogTitle}>
+        Few more steps to add your place
+      </DialogTitle>
       <DialogContent>
         {data.error && (
           <Alert severity="error" className={classes.formAlert}>
