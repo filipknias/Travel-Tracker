@@ -73,7 +73,7 @@ export default function (state = initialState, action) {
     case SET_PLACES:
       return {
         ...state,
-        places: [...state.places, ...action.payload],
+        places: [...action.payload],
       };
     case CLEAR_PLACES:
       return {

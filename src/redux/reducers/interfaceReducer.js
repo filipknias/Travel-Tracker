@@ -1,7 +1,7 @@
 // Types
 import {
   SET_PLACE_FORM_DIALOG_OPEN,
-  SET_PROFILE_DIALOG_OPEN,
+  SET_SLIDESHOW_DIALOG_OPEN,
   SET_PLACE_DIALOG_OPEN,
   SET_MAP_THEME_DIALOG_OPEN,
 } from "../types";
@@ -11,7 +11,7 @@ const initialState = {
     placeForm: false,
     selectedPlace: false,
     mapTheme: false,
-    profile: false,
+    slideshow: false,
   },
 };
 
@@ -34,12 +34,12 @@ export default function (state = initialState, action) {
           selectedPlace: action.payload,
         },
       };
-    case SET_PROFILE_DIALOG_OPEN:
+    case SET_SLIDESHOW_DIALOG_OPEN:
       return {
         ...state,
         dialogsOpen: {
           ...state.dialogsOpen,
-          profile: action.payload,
+          slideshow: action.payload,
         },
       };
     case SET_MAP_THEME_DIALOG_OPEN:

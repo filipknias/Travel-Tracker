@@ -1,5 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+// Firebase
+import { db } from "../../utilities/firebase";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -26,7 +28,9 @@ import { connect } from "react-redux";
 import {
   resetCoords,
   addPlace,
+  editPlace,
   clearError,
+  setSelectedPlace,
 } from "../../redux/actions/dataActions";
 import { setPlaceFormDialogOpen } from "../../redux/actions/interfaceActions";
 // FilePond
@@ -91,10 +95,12 @@ const useStyles = makeStyles((theme) => ({
 
 const PlaceFormDialog = ({
   data,
+  selectedPlace,
   dialogOpen,
   resetCoords,
   clearError,
   addPlace,
+  editPlace,
   setPlaceFormDialogOpen,
 }) => {
   const classes = useStyles();
@@ -107,13 +113,12 @@ const PlaceFormDialog = ({
     "#8561c5",
   ];
   // State
+  const [location, setLocation] = useState("");
+  const [description, setDescription] = useState("");
   const [markerColor, setMarkerColor] = useState(MARKER_COLORS[0]);
   const [photos, setPhotos] = useState([]);
   const [publicSwitch, setPublicSwitch] = useState(false);
   const [visitDate, setVisitDate] = useState(new Date());
-  // Refs
-  const locationRef = useRef();
-  const descriptionRef = useRef();
 
   const MarkerColorPick = ({ color }) => {
     return (
@@ -134,19 +139,29 @@ const PlaceFormDialog = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const locationValue = locationRef.current.value;
-    const descriptionValue = descriptionRef.current.value;
 
-    await addPlace(
-      data.coords[0],
-      data.coords[1],
-      locationValue,
-      descriptionValue,
-      markerColor,
-      photos,
-      publicSwitch,
-      visitDate
-    );
+    if (selectedPlace) {
+      await editPlace(
+        selectedPlace.id,
+        location,
+        description,
+        markerColor,
+        photos,
+        publicSwitch,
+        visitDate
+      );
+    } else {
+      await addPlace(
+        data.coords[0],
+        data.coords[1],
+        location,
+        description,
+        markerColor,
+        photos,
+        publicSwitch,
+        visitDate
+      );
+    }
 
     const error = store.getState().data.error;
     if (!error) {
@@ -154,10 +169,62 @@ const PlaceFormDialog = ({
     }
   };
 
+  const setUploadedPhotos = async () => {
+    if (!selectedPlace) return;
+    const convertUrlToFile = async (url, callback) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = () => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          callback(reader.result);
+        };
+        reader.readAsDataURL(xhr.response);
+      };
+      xhr.open("GET", url);
+      xhr.responseType = "blob";
+      xhr.send();
+    };
+
+    selectedPlace.photos.forEach(async (photo) => {
+      const url = `https://cors-anywhere.herokuapp.com/${photo.url}`;
+      await convertUrlToFile(url, (file) => {
+        setPhotos((prevPhotos) => [...prevPhotos, file]);
+      });
+    });
+  };
+
+  useEffect(() => {
+    if (selectedPlace) {
+      const selectedPlaceDoc = db.collection("places").doc(selectedPlace.id);
+      selectedPlaceDoc.onSnapshot((doc) => {
+        setSelectedPlace({
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+
+      setLocation(selectedPlace.location);
+      setDescription(selectedPlace.description);
+      setMarkerColor(selectedPlace.markerColor);
+      setPublicSwitch(selectedPlace.public);
+      setVisitDate(selectedPlace.visitDate.toDate());
+    } else {
+      setLocation("");
+      setDescription("");
+      setMarkerColor(MARKER_COLORS[0]);
+      setPublicSwitch(false);
+      setVisitDate(new Date());
+    }
+  }, [selectedPlace]);
+
   return (
     <Dialog open={dialogOpen} onClose={handleDialogClose}>
       <DialogTitle className={classes.dialogTitle}>
-        Few more steps to add your place
+        {selectedPlace ? (
+          <p>Edit place</p>
+        ) : (
+          <p>Few more steps to add your place</p>
+        )}
       </DialogTitle>
       <DialogContent>
         {data.error && (
@@ -179,7 +246,8 @@ const PlaceFormDialog = ({
           <div className={classes.formSection}>
             <TextField
               label="Place Location"
-              inputRef={locationRef}
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
               required
               fullWidth
             />
@@ -187,7 +255,8 @@ const PlaceFormDialog = ({
           <div className={classes.formSection}>
             <TextField
               label="Description (optional)"
-              inputRef={descriptionRef}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               multiline
               rows={3}
               fullWidth
@@ -211,6 +280,10 @@ const PlaceFormDialog = ({
               Import photos from this place
             </Typography>
             <FilePond
+              oninit={setUploadedPhotos}
+              disabled={
+                selectedPlace && photos.length !== selectedPlace.photos.length
+              }
               className={classes.filePondInput}
               files={photos}
               acceptedFileTypes={["image/png", "image/jpeg"]}
@@ -237,7 +310,10 @@ const PlaceFormDialog = ({
               type="submit"
               variant="contained"
               color="primary"
-              disabled={data.loading}
+              disabled={
+                data.loading ||
+                (selectedPlace && photos.length !== selectedPlace.photos.length)
+              }
               fullWidth
             >
               {data.loading ? (
@@ -255,21 +331,25 @@ const PlaceFormDialog = ({
 
 PlaceFormDialog.propTypes = {
   data: PropTypes.object.isRequired,
+  selectedPlace: PropTypes.object,
   dialogOpen: PropTypes.bool.isRequired,
   resetCoords: PropTypes.func.isRequired,
   addPlace: PropTypes.func.isRequired,
+  editPlace: PropTypes.func.isRequired,
   clearError: PropTypes.func.isRequired,
   setPlaceFormDialogOpen: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   data: state.data,
+  selectedPlace: state.data.selectedPlace,
   dialogOpen: state.interface.dialogsOpen.placeForm,
 });
 
 const mapActionsToProps = {
   resetCoords,
   addPlace,
+  editPlace,
   clearError,
   setPlaceFormDialogOpen,
 };

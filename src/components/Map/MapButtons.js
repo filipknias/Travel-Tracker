@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 // Components
-import MapThemeDialog from "../Dialogs/MapThemeDialog";
+import MapThemeDialog from "./MapThemeDialog";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";

@@ -10,15 +10,30 @@ import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import Tooltip from "@material-ui/core/Tooltip";
+// Icons
+import EditIcon from "@material-ui/icons/Create";
+import DeleteIcon from "@material-ui/icons/Delete";
 // Redux
 import { connect } from "react-redux";
 import { clearSelectedPlace } from "../../redux/actions/dataActions";
-import { setPlaceDialogOpen } from "../../redux/actions/interfaceActions";
+import {
+  setPlaceDialogOpen,
+  setSlideshowDialogOpen,
+  setPlaceFormDialogOpen,
+} from "../../redux/actions/interfaceActions";
+// Firebase
+import { auth } from "../../utilities/firebase";
 
 const useStyles = makeStyles({
   dialogTitle: {
     padding: 0,
     marginBottom: 20,
+  },
+  placeInfoGroup: {
+    display: "flex",
+    justifyContent: "space-between",
   },
   photosGroup: {
     margin: "10px 0",
@@ -39,7 +54,9 @@ const PlaceDialog = ({
   data,
   dialogOpen,
   setPlaceDialogOpen,
+  setSlideshowDialogOpen,
   clearSelectedPlace,
+  setPlaceFormDialogOpen,
 }) => {
   const classes = useStyles();
   // State
@@ -60,30 +77,52 @@ const PlaceDialog = ({
   const AboutPlace = () => {
     return (
       <>
-        <Typography variant="subtitle2">
-          Visit Date: {formatVisitDate()}
-        </Typography>
-        <Typography variant="h5">{data.selectedPlace.location}</Typography>
-        <div style={{ marginTop: 5 }}>
-          {data.selectedPlace.description ? (
-            <Typography variant="body1">
-              {data.selectedPlace.description}
+        <div className={classes.placeInfoGroup}>
+          <div>
+            <Typography variant="subtitle2">
+              Visit Date: {formatVisitDate()}
             </Typography>
-          ) : (
-            <Typography variant="body1">No description</Typography>
+            <Typography variant="h5">{data.selectedPlace.location}</Typography>
+            <div style={{ marginTop: 5 }}>
+              {data.selectedPlace.description ? (
+                <Typography variant="body1">
+                  {data.selectedPlace.description}
+                </Typography>
+              ) : (
+                <Typography variant="body1">No description</Typography>
+              )}
+            </div>
+          </div>
+          {auth.currentUser.uid === data.selectedPlace.userId && (
+            <div>
+              <Tooltip title="Edit">
+                <IconButton onClick={() => setPlaceFormDialogOpen(true)}>
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete">
+                <IconButton>
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
+            </div>
           )}
         </div>
         <div className={classes.photosGroup}>
           {data.selectedPlace.photos.length > 1 && (
-            <Button color="primary" className={classes.slideshowBtn}>
+            <Button
+              color="primary"
+              className={classes.slideshowBtn}
+              onClick={() => setSlideshowDialogOpen(true)}
+            >
               Slideshow
             </Button>
           )}
-          {data.selectedPlace.photos.map((photoUrl, index) => (
+          {data.selectedPlace.photos.map((photo, index) => (
             <img
               className={classes.photo}
-              src={photoUrl}
-              alt={photoUrl}
+              src={photo.url}
+              alt={photo.url}
               key={index}
               height="300"
             />
@@ -93,8 +132,17 @@ const PlaceDialog = ({
     );
   };
 
+  const PlaceRating = () => {
+    return <h1>Rating</h1>;
+  };
+
   return (
-    <Dialog open={dialogOpen} onClose={handleDialogClose}>
+    <Dialog
+      open={dialogOpen}
+      onClose={handleDialogClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle className={classes.dialogTitle}>
         <AppBar position="static" color="primary">
           <Tabs
@@ -107,7 +155,10 @@ const PlaceDialog = ({
           </Tabs>
         </AppBar>
       </DialogTitle>
-      <DialogContent>{selectedTab === 0 && <AboutPlace />}</DialogContent>
+      <DialogContent>
+        {selectedTab === 0 && <AboutPlace />}
+        {selectedTab === 1 && <PlaceRating />}
+      </DialogContent>
     </Dialog>
   );
 };
@@ -116,7 +167,9 @@ PlaceDialog.propTypes = {
   data: PropTypes.object.isRequired,
   dialogOpen: PropTypes.bool.isRequired,
   setPlaceDialogOpen: PropTypes.func.isRequired,
+  setSlideshowDialogOpen: PropTypes.func.isRequired,
   clearSelectedPlace: PropTypes.func.isRequired,
+  setPlaceFormDialogOpen: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -126,7 +179,9 @@ const mapStateToProps = (state) => ({
 
 const mapActionsToProps = {
   setPlaceDialogOpen,
+  setSlideshowDialogOpen,
   clearSelectedPlace,
+  setPlaceFormDialogOpen,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(PlaceDialog);

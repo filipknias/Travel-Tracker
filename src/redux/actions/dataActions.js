@@ -117,11 +117,11 @@ export const addPlace = (
   publicStatus,
   visitDate
 ) => async (dispatch) => {
-  dispatch({ type: START_LOADING });
-  dispatch({ type: CLEAR_ERROR });
-
   try {
     if (location.trim() === "") return;
+
+    dispatch({ type: START_LOADING });
+    dispatch({ type: CLEAR_ERROR });
 
     if (publicStatus === true) {
       if ((await isLocationUnique(location)) === false) {
@@ -135,10 +135,14 @@ export const addPlace = (
 
     const photosUrls = photosFiles.map(async (photo) => {
       const storageRef = storage.ref();
-      const fileRef = storageRef.child(uuid());
+      const fileName = uuid();
+      const fileRef = storageRef.child(fileName);
       await fileRef.put(photo);
       const fileUrl = await fileRef.getDownloadURL();
-      return fileUrl;
+      return {
+        fileName,
+        url: fileUrl,
+      };
     });
     const photoUrlsPromisesResolved = await Promise.all(photosUrls);
 
@@ -171,6 +175,66 @@ export const addPlace = (
   dispatch({ type: STOP_LOADING });
 };
 
+export const editPlace = (
+  placeId,
+  location,
+  description,
+  markerColor,
+  photosFiles,
+  publicStatus,
+  visitDate
+) => async (dispatch) => {
+  try {
+    if (location.trim() === "") return;
+
+    dispatch({ type: START_LOADING });
+    dispatch({ type: CLEAR_ERROR });
+
+    if (publicStatus === true) {
+      if ((await isLocationUnique(location)) === false) {
+        dispatch({
+          type: SET_ERROR,
+          payload: "Place with this location arleady exist",
+        });
+        return dispatch({ type: STOP_LOADING });
+      }
+    }
+
+    const photosUrls = photosFiles.map(async (photo) => {
+      const storageRef = storage.ref();
+
+      if (storageRef.child(photo.fileName)) return;
+
+      const fileName = uuid();
+      const fileRef = storageRef.child(fileName);
+      await fileRef.put(photo);
+      const fileUrl = await fileRef.getDownloadURL();
+      return {
+        fileName,
+        url: fileUrl,
+      };
+    });
+    const photoUrlsPromisesResolved = await Promise.all(photosUrls);
+
+    const placeDocRef = db.collection("places").doc(placeId);
+    await placeDocRef.update({
+      location,
+      description,
+      markerColor,
+      public: publicStatus,
+      visitDate,
+    });
+  } catch (err) {
+    console.log(err);
+    dispatch({
+      type: SET_ERROR,
+      payload: "Somethink went wrong. Please try again",
+    });
+  }
+
+  dispatch({ type: STOP_LOADING });
+};
+
 export const getPublicPlaces = () => async (dispatch) => {
   dispatch({ type: START_LOADING });
 
@@ -181,7 +245,10 @@ export const getPublicPlaces = () => async (dispatch) => {
     .where("userId", "!=", auth.currentUser.uid);
   const docs = await query.get();
   docs.forEach((doc) => {
-    publicPlaces.push(doc.data());
+    publicPlaces.push({
+      id: doc.id,
+      ...doc.data(),
+    });
   });
   dispatch({
     type: SET_PLACES,
@@ -199,7 +266,10 @@ export const getUserPlaces = (userId) => async (dispatch) => {
   const query = placesRef.where("userId", "==", userId);
   const docs = await query.get();
   docs.forEach((doc) => {
-    userPlaces.push(doc.data());
+    userPlaces.push({
+      id: doc.id,
+      ...doc.data(),
+    });
   });
   dispatch({
     type: SET_PLACES,
@@ -217,7 +287,10 @@ export const getAllPlaces = () => async (dispatch) => {
   const query = placesRef.orderBy("createdAt").limit(100);
   const docs = await query.get();
   docs.forEach((doc) => {
-    places.push(doc.data());
+    places.push({
+      id: doc.id,
+      ...doc.data(),
+    });
   });
   dispatch({
     type: SET_PLACES,

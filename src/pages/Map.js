@@ -8,9 +8,10 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 // Components
 import MapButtons from "../components/Map/MapButtons";
 import MapPopup from "../components/Map/MapPopup";
-import PlaceFormDialog from "../components/Dialogs/PlaceFormDialog";
-import PlaceDialog from "../components/Dialogs/PlaceDialog";
+import PlaceFormDialog from "../components/Places/PlaceFormDialog";
+import PlaceDialog from "../components/Places/PlaceDialog";
 import PlaceMarker from "../components/Map/PlaceMarker";
+import SlideshowDialog from "../components/Places/SlideshowDialog";
 // Redux
 import { connect } from "react-redux";
 import {
@@ -82,7 +83,12 @@ const Map = ({
       <MapButtons />
       <MapPopup />
       <PlaceFormDialog />
-      {data.selectedPlace && <PlaceDialog />}
+      {data.selectedPlace && (
+        <>
+          <PlaceDialog />
+          <SlideshowDialog />
+        </>
+      )}
     </>
   );
 };
