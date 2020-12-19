@@ -144,7 +144,7 @@ export const addPlace = (
         url: fileUrl,
       };
     });
-    const photoUrlsPromisesResolved = await Promise.all(photosUrls);
+    const photosObject = await Promise.all(photosUrls);
 
     const placesRef = db.collection("places");
 
@@ -153,7 +153,7 @@ export const addPlace = (
       latitude,
       location,
       markerColor,
-      photos: photoUrlsPromisesResolved,
+      photos: photosObject,
       public: publicStatus,
       visitDate,
       userId: auth.currentUser.uid,
@@ -177,9 +177,11 @@ export const addPlace = (
 
 export const editPlace = (
   placeId,
+  prevLocation,
   location,
   description,
   markerColor,
+  storagePhotos,
   photosFiles,
   publicStatus,
   visitDate
@@ -190,7 +192,7 @@ export const editPlace = (
     dispatch({ type: START_LOADING });
     dispatch({ type: CLEAR_ERROR });
 
-    if (publicStatus === true) {
+    if (publicStatus === true && prevLocation !== location) {
       if ((await isLocationUnique(location)) === false) {
         dispatch({
           type: SET_ERROR,
@@ -200,11 +202,12 @@ export const editPlace = (
       }
     }
 
+    const storageRef = storage.ref();
+    await storagePhotos.forEach(async (photo) => {
+      storageRef.child(photo.fileName).delete();
+    });
+
     const photosUrls = photosFiles.map(async (photo) => {
-      const storageRef = storage.ref();
-
-      if (storageRef.child(photo.fileName)) return;
-
       const fileName = uuid();
       const fileRef = storageRef.child(fileName);
       await fileRef.put(photo);
@@ -214,16 +217,23 @@ export const editPlace = (
         url: fileUrl,
       };
     });
-    const photoUrlsPromisesResolved = await Promise.all(photosUrls);
+    const photosObjects = await Promise.all(photosUrls);
 
     const placeDocRef = db.collection("places").doc(placeId);
-    await placeDocRef.update({
+
+    const updatedPlace = {
       location,
       description,
       markerColor,
+      photos: photosObjects,
       public: publicStatus,
       visitDate,
-    });
+    };
+    if (description.trim() !== "") {
+      updatedPlace.description = description;
+    }
+
+    await placeDocRef.update(updatedPlace);
   } catch (err) {
     console.log(err);
     dispatch({

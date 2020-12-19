@@ -35,6 +35,9 @@ const useStyles = makeStyles({
     fontSize: 60,
     cursor: "pointer",
   },
+  photoPreview: {
+    margin: "10px auto 5px auto",
+  },
   placeInfoGroup: {
     display: "flex",
     marginTop: 10,
@@ -109,6 +112,13 @@ const PlaceMarker = ({
             <Typography variant="subtitle2">{place.description}</Typography>
           ) : (
             <Typography variant="subtitle2">No description.</Typography>
+          )}
+          {place.photos.length > 0 && (
+            <img
+              src={place.photos[0].url}
+              height="150"
+              className={classes.photoPreview}
+            />
           )}
           <div className={classes.placeInfoGroup}>
             <div className={classes.placeInfoItem}>

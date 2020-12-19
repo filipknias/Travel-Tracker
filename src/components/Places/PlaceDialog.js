@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
@@ -17,14 +17,17 @@ import EditIcon from "@material-ui/icons/Create";
 import DeleteIcon from "@material-ui/icons/Delete";
 // Redux
 import { connect } from "react-redux";
-import { clearSelectedPlace } from "../../redux/actions/dataActions";
+import {
+  clearSelectedPlace,
+  setSelectedPlace,
+} from "../../redux/actions/dataActions";
 import {
   setPlaceDialogOpen,
   setSlideshowDialogOpen,
   setPlaceFormDialogOpen,
 } from "../../redux/actions/interfaceActions";
 // Firebase
-import { auth } from "../../utilities/firebase";
+import { db, auth } from "../../utilities/firebase";
 
 const useStyles = makeStyles({
   dialogTitle: {
@@ -57,6 +60,7 @@ const PlaceDialog = ({
   setSlideshowDialogOpen,
   clearSelectedPlace,
   setPlaceFormDialogOpen,
+  setSelectedPlace,
 }) => {
   const classes = useStyles();
   // State
@@ -73,6 +77,16 @@ const PlaceDialog = ({
     const formattedDate = dateString.substr(4, dateString.length);
     return formattedDate;
   };
+
+  useEffect(() => {
+    const selectedPlaceDoc = db.collection("places").doc(data.selectedPlace.id);
+    selectedPlaceDoc.onSnapshot((doc) => {
+      setSelectedPlace({
+        id: doc.id,
+        ...doc.data(),
+      });
+    });
+  }, []);
 
   const AboutPlace = () => {
     return (
@@ -170,6 +184,7 @@ PlaceDialog.propTypes = {
   setSlideshowDialogOpen: PropTypes.func.isRequired,
   clearSelectedPlace: PropTypes.func.isRequired,
   setPlaceFormDialogOpen: PropTypes.func.isRequired,
+  setSelectedPlace: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -182,6 +197,7 @@ const mapActionsToProps = {
   setSlideshowDialogOpen,
   clearSelectedPlace,
   setPlaceFormDialogOpen,
+  setSelectedPlace,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(PlaceDialog);

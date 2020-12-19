@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-// Firebase
-import { db } from "../../utilities/firebase";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -30,7 +28,6 @@ import {
   addPlace,
   editPlace,
   clearError,
-  setSelectedPlace,
 } from "../../redux/actions/dataActions";
 import { setPlaceFormDialogOpen } from "../../redux/actions/interfaceActions";
 // FilePond
@@ -116,9 +113,11 @@ const PlaceFormDialog = ({
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [markerColor, setMarkerColor] = useState(MARKER_COLORS[0]);
+  const [storagePhotos, setStoragePhotos] = useState([]);
   const [photos, setPhotos] = useState([]);
   const [publicSwitch, setPublicSwitch] = useState(false);
   const [visitDate, setVisitDate] = useState(new Date());
+  const [photosLoaded, setPhotosLoaded] = useState(true);
 
   const MarkerColorPick = ({ color }) => {
     return (
@@ -132,6 +131,7 @@ const PlaceFormDialog = ({
 
   const handleDialogClose = () => {
     setPlaceFormDialogOpen(false);
+    setStoragePhotos([]);
     setPhotos([]);
     resetCoords();
     clearError();
@@ -143,9 +143,11 @@ const PlaceFormDialog = ({
     if (selectedPlace) {
       await editPlace(
         selectedPlace.id,
+        selectedPlace.location,
         location,
         description,
         markerColor,
+        storagePhotos,
         photos,
         publicSwitch,
         visitDate
@@ -169,8 +171,14 @@ const PlaceFormDialog = ({
     }
   };
 
-  const setUploadedPhotos = async () => {
+  const filePondInit = async () => {
     if (!selectedPlace) return;
+    if (selectedPlace.photos.length === 0) {
+      setPhotosLoaded(true);
+    } else {
+      setPhotosLoaded(false);
+    }
+
     const convertUrlToFile = async (url, callback) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = () => {
@@ -188,21 +196,13 @@ const PlaceFormDialog = ({
     selectedPlace.photos.forEach(async (photo) => {
       const url = `https://cors-anywhere.herokuapp.com/${photo.url}`;
       await convertUrlToFile(url, (file) => {
-        setPhotos((prevPhotos) => [...prevPhotos, file]);
+        setStoragePhotos((prevPhotos) => [...prevPhotos, file]);
       });
     });
   };
 
   useEffect(() => {
     if (selectedPlace) {
-      const selectedPlaceDoc = db.collection("places").doc(selectedPlace.id);
-      selectedPlaceDoc.onSnapshot((doc) => {
-        setSelectedPlace({
-          id: doc.id,
-          ...doc.data(),
-        });
-      });
-
       setLocation(selectedPlace.location);
       setDescription(selectedPlace.description);
       setMarkerColor(selectedPlace.markerColor);
@@ -214,8 +214,19 @@ const PlaceFormDialog = ({
       setMarkerColor(MARKER_COLORS[0]);
       setPublicSwitch(false);
       setVisitDate(new Date());
+      setPhotosLoaded(true);
     }
   }, [selectedPlace]);
+
+  useEffect(() => {
+    if (!selectedPlace) return;
+
+    if (storagePhotos.length < selectedPlace.photos.length) {
+      setPhotosLoaded(false);
+    } else {
+      setPhotosLoaded(true);
+    }
+  }, [storagePhotos]);
 
   return (
     <Dialog open={dialogOpen} onClose={handleDialogClose}>
@@ -280,12 +291,10 @@ const PlaceFormDialog = ({
               Import photos from this place
             </Typography>
             <FilePond
-              oninit={setUploadedPhotos}
-              disabled={
-                selectedPlace && photos.length !== selectedPlace.photos.length
-              }
+              oninit={filePondInit}
+              disabled={data.loading || !photosLoaded}
               className={classes.filePondInput}
-              files={photos}
+              files={photos.concat(storagePhotos)}
               acceptedFileTypes={["image/png", "image/jpeg"]}
               labelFileTypeNotAllowed="Invalid file type"
               allowMultiple={true}
@@ -310,10 +319,7 @@ const PlaceFormDialog = ({
               type="submit"
               variant="contained"
               color="primary"
-              disabled={
-                data.loading ||
-                (selectedPlace && photos.length !== selectedPlace.photos.length)
-              }
+              disabled={data.loading || !photosLoaded}
               fullWidth
             >
               {data.loading ? (
