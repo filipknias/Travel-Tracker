@@ -123,6 +123,7 @@ export const addPlace = (
     dispatch({ type: START_LOADING });
     dispatch({ type: CLEAR_ERROR });
 
+    // Check if location with this name exist when location is public
     if (publicStatus === true) {
       if ((await isLocationUnique(location)) === false) {
         dispatch({
@@ -133,7 +134,13 @@ export const addPlace = (
       }
     }
 
-    const photosUrls = photosFiles.map(async (photo) => {
+    // Sort photos to jpeg/png files
+    const photosFilesFormatted = photosFiles.filter((photoFile) => {
+      return photoFile.type === "image/jpeg" || photoFile.type === "image/png";
+    });
+
+    // Save photos in storage
+    const photosUrls = photosFilesFormatted.map(async (photo) => {
       const storageRef = storage.ref();
       const fileName = uuid();
       const fileRef = storageRef.child(fileName);
@@ -146,8 +153,8 @@ export const addPlace = (
     });
     const photosObject = await Promise.all(photosUrls);
 
+    // Save location
     const placesRef = db.collection("places");
-
     const createdPlace = {
       longitude,
       latitude,
@@ -181,7 +188,7 @@ export const editPlace = (
   location,
   description,
   markerColor,
-  storagePhotos,
+  prevPhotos,
   photosFiles,
   publicStatus,
   visitDate
@@ -192,6 +199,7 @@ export const editPlace = (
     dispatch({ type: START_LOADING });
     dispatch({ type: CLEAR_ERROR });
 
+    // Check if location with this name exist when location is public
     if (publicStatus === true && prevLocation !== location) {
       if ((await isLocationUnique(location)) === false) {
         dispatch({
@@ -202,12 +210,19 @@ export const editPlace = (
       }
     }
 
+    // Delete all previous photos from location
     const storageRef = storage.ref();
-    await storagePhotos.forEach(async (photo) => {
-      storageRef.child(photo.fileName).delete();
+    prevPhotos.forEach(async (photo) => {
+      await storageRef.child(photo.fileName).delete();
     });
 
-    const photosUrls = photosFiles.map(async (photo) => {
+    // Sort photos to jpeg/png files
+    const photosFilesFormatted = photosFiles.filter((photoFile) => {
+      return photoFile.type === "image/jpeg" || photoFile.type === "image/png";
+    });
+
+    // Save photos in storage
+    const photosUrls = photosFilesFormatted.map(async (photo) => {
       const fileName = uuid();
       const fileRef = storageRef.child(fileName);
       await fileRef.put(photo);
@@ -219,11 +234,10 @@ export const editPlace = (
     });
     const photosObjects = await Promise.all(photosUrls);
 
+    // Save location
     const placeDocRef = db.collection("places").doc(placeId);
-
     const updatedPlace = {
       location,
-      description,
       markerColor,
       photos: photosObjects,
       public: publicStatus,

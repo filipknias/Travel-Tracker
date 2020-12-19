@@ -147,7 +147,7 @@ const PlaceFormDialog = ({
         location,
         description,
         markerColor,
-        storagePhotos,
+        selectedPlace.photos,
         photos,
         publicSwitch,
         visitDate
@@ -179,25 +179,11 @@ const PlaceFormDialog = ({
       setPhotosLoaded(false);
     }
 
-    const convertUrlToFile = async (url, callback) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = () => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          callback(reader.result);
-        };
-        reader.readAsDataURL(xhr.response);
-      };
-      xhr.open("GET", url);
-      xhr.responseType = "blob";
-      xhr.send();
-    };
-
     selectedPlace.photos.forEach(async (photo) => {
       const url = `https://cors-anywhere.herokuapp.com/${photo.url}`;
-      await convertUrlToFile(url, (file) => {
-        setStoragePhotos((prevPhotos) => [...prevPhotos, file]);
-      });
+      const urlResponse = await fetch(url);
+      const blob = await urlResponse.blob();
+      setStoragePhotos((prevPhotos) => [...prevPhotos, blob]);
     });
   };
 
@@ -294,7 +280,7 @@ const PlaceFormDialog = ({
               oninit={filePondInit}
               disabled={data.loading || !photosLoaded}
               className={classes.filePondInput}
-              files={photos.concat(storagePhotos)}
+              files={!data.loading ? photos.concat(storagePhotos) : photos}
               acceptedFileTypes={["image/png", "image/jpeg"]}
               labelFileTypeNotAllowed="Invalid file type"
               allowMultiple={true}

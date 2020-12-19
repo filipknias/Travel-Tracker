@@ -116,6 +116,7 @@ const PlaceMarker = ({
           {place.photos.length > 0 && (
             <img
               src={place.photos[0].url}
+              alt={place.photos[0].url}
               height="150"
               className={classes.photoPreview}
             />
