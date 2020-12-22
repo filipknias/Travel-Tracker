@@ -8,12 +8,14 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogContent from "@material-ui/core/DialogContent";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import Radio from "@material-ui/core/Radio";
+// Icons
+import ThemeIcon from "@material-ui/icons/Explore";
 // Redux
 import { connect } from "react-redux";
 import { setMapStyle } from "../../redux/actions/dataActions";
-import { setMapThemeDialogOpen } from "../../redux/actions/interfaceActions";
 
 const useStyles = makeStyles({
   themeIcon: {
@@ -31,16 +33,11 @@ const useStyles = makeStyles({
   },
 });
 
-const MapThemeDialog = ({
-  dialogOpen,
-  data,
-  setMapStyle,
-  setAnchorEl,
-  setMapThemeDialogOpen,
-}) => {
+const MapThemeDialog = ({ data, setMapStyle, setAnchorEl }) => {
   const classes = useStyles();
   // State
   const [selectedUrl, setSelectedUrl] = useState(data.mapStyle);
+  const [open, setOpen] = useState(false);
 
   const MAP_STYLES = [
     {
@@ -85,60 +82,60 @@ const MapThemeDialog = ({
     localStorage.setItem("TRAVEL-TRACKER-MAP-STYLE", selectedUrl);
     setMapStyle(selectedUrl);
     setAnchorEl(null);
-    setMapThemeDialogOpen(false);
+    setOpen(false);
   };
 
   return (
-    <Dialog open={dialogOpen} onClose={() => setMapThemeDialogOpen(false)}>
-      <DialogTitle className={classes.dialogTitle}>
-        Choose Map Theme
-      </DialogTitle>
-      <DialogContent className={classes.dialogContent}>
-        <List>
-          {MAP_STYLES.map((mapStyle) => (
-            <ListItem
-              onClick={() => setSelectedUrl(mapStyle.mapURL)}
-              key={mapStyle.mapURL}
-              button
-            >
-              <Radio
-                value={mapStyle.mapURL}
-                onChange={() => setSelectedUrl(mapStyle.mapURL)}
-                checked={selectedUrl === mapStyle.mapURL}
-              />
-              <ListItemText primary={mapStyle.mapTitle} />
-            </ListItem>
-          ))}
-        </List>
-      </DialogContent>
-      <Button
-        variant="contained"
-        color="primary"
-        className={classes.submitButton}
-        onClick={handleThemeSubmit}
-      >
-        Submit
-      </Button>
-    </Dialog>
+    <>
+      <ListItem onClick={() => setOpen(true)} button>
+        <ListItemIcon>
+          <ThemeIcon className={classes.themeIcon} />
+        </ListItemIcon>
+        <ListItemText primary="Map Theme" />
+      </ListItem>
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <DialogTitle className={classes.dialogTitle}>
+          Choose Map Theme
+        </DialogTitle>
+        <DialogContent className={classes.dialogContent}>
+          <List>
+            {MAP_STYLES.map((mapStyle) => (
+              <ListItem
+                onClick={() => setSelectedUrl(mapStyle.mapURL)}
+                key={mapStyle.mapURL}
+                button
+              >
+                <Radio
+                  value={mapStyle.mapURL}
+                  onChange={() => setSelectedUrl(mapStyle.mapURL)}
+                  checked={selectedUrl === mapStyle.mapURL}
+                />
+                <ListItemText primary={mapStyle.mapTitle} />
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <Button
+          variant="contained"
+          color="primary"
+          className={classes.submitButton}
+          onClick={handleThemeSubmit}
+        >
+          Submit
+        </Button>
+      </Dialog>
+    </>
   );
 };
 
 MapThemeDialog.propTypes = {
   data: PropTypes.object.isRequired,
-  dialogOpen: PropTypes.bool.isRequired,
   setMapStyle: PropTypes.func.isRequired,
   setAnchorEl: PropTypes.func.isRequired,
-  setMapThemeDialogOpen: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   data: state.data,
-  dialogOpen: state.interface.dialogsOpen.mapTheme,
 });
 
-const mapActionsToProps = {
-  setMapStyle,
-  setMapThemeDialogOpen,
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(MapThemeDialog);
+export default connect(mapStateToProps, { setMapStyle })(MapThemeDialog);

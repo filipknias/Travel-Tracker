@@ -10,6 +10,8 @@ import {
 // Firebase
 import { auth } from "../../utilities/firebase";
 
+// TODO: instead of setting user custom photo use avatar mui component, random user color and set first letter as a avatar with users color bg
+
 export const signUpUser = (email, password, confirmPassword, history) => async (
   dispatch
 ) => {

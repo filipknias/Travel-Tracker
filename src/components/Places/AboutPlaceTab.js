@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+// Components
+import PlaceFormDialog from "./PlaceFormDialog";
+import SlideshowDialog from "./SlideshowDialog";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 // Icons
@@ -12,10 +14,6 @@ import DeleteIcon from "@material-ui/icons/Delete";
 // Redux
 import { connect } from "react-redux";
 import { setSelectedPlace } from "../../redux/actions/dataActions";
-import {
-  setSlideshowDialogOpen,
-  setPlaceFormDialogOpen,
-} from "../../redux/actions/interfaceActions";
 // Firebase
 import { db, auth } from "../../utilities/firebase";
 
@@ -37,20 +35,12 @@ const useStyles = makeStyles({
     objectFit: "cover",
     borderRadius: 5,
   },
-  slideshowBtn: {
-    marginLeft: "auto",
-    display: "block",
-  },
 });
 
-const AboutPlaceTab = ({
-  user,
-  data,
-  setSlideshowDialogOpen,
-  setPlaceFormDialogOpen,
-  setSelectedPlace,
-}) => {
+const AboutPlaceTab = ({ user, data, setSelectedPlace }) => {
   const classes = useStyles();
+  // State
+  const [formOpen, setFormOpen] = useState(false);
 
   const formatVisitDate = () => {
     const dateToFormat = data.selectedPlace.visitDate;
@@ -91,7 +81,7 @@ const AboutPlaceTab = ({
         {user.auth && auth.currentUser.uid === data.selectedPlace.userId && (
           <div>
             <Tooltip title="Edit">
-              <IconButton onClick={() => setPlaceFormDialogOpen(true)}>
+              <IconButton onClick={() => setFormOpen(true)}>
                 <EditIcon />
               </IconButton>
             </Tooltip>
@@ -100,19 +90,12 @@ const AboutPlaceTab = ({
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
+            <PlaceFormDialog open={formOpen} setOpen={setFormOpen} />
           </div>
         )}
       </div>
       <div className={classes.photosGroup}>
-        {data.selectedPlace.photos.length > 1 && (
-          <Button
-            color="primary"
-            className={classes.slideshowBtn}
-            onClick={() => setSlideshowDialogOpen(true)}
-          >
-            Slideshow
-          </Button>
-        )}
+        {data.selectedPlace.photos.length > 1 && <SlideshowDialog />}
         {data.selectedPlace.photos.map((photo, index) => (
           <img
             className={classes.photo}
@@ -130,21 +113,12 @@ const AboutPlaceTab = ({
 AboutPlaceTab.propTypes = {
   user: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
-  setSlideshowDialogOpen: PropTypes.func.isRequired,
-  setPlaceFormDialogOpen: PropTypes.func.isRequired,
   setSelectedPlace: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   user: state.user,
   data: state.data,
-  dialogOpen: state.interface.dialogsOpen.selectedPlace,
 });
 
-const mapActionsToProps = {
-  setSlideshowDialogOpen,
-  setPlaceFormDialogOpen,
-  setSelectedPlace,
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(AboutPlaceTab);
+export default connect(mapStateToProps, { setSelectedPlace })(AboutPlaceTab);

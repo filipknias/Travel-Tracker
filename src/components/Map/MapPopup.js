@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
+// Components
+import PlaceFormDialog from "../Places/PlaceFormDialog";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Snackbar from "@material-ui/core/Snackbar";
@@ -12,7 +14,6 @@ import AddPlaceIcon from "@material-ui/icons/AddPhotoAlternate";
 // Redux
 import { connect } from "react-redux";
 import { mapUnClick, setClick } from "../../redux/actions/dataActions";
-import { setPlaceFormDialogOpen } from "../../redux/actions/interfaceActions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,17 +22,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MapPopup = ({
-  user,
-  data,
-  mapUnClick,
-  setClick,
-  setPlaceFormDialogOpen,
-}) => {
+const MapPopup = ({ user, data, mapUnClick, setClick }) => {
   const classes = useStyles();
+  // State
+  const [formOpen, setFormOpen] = useState(false);
 
   const handleDialogOpen = () => {
-    setPlaceFormDialogOpen(true);
+    setFormOpen(true);
     setClick(false);
   };
 
@@ -79,6 +76,7 @@ const MapPopup = ({
           />
         )}
       </Snackbar>
+      <PlaceFormDialog open={formOpen} setOpen={setFormOpen} />
     </>
   );
 };
@@ -88,7 +86,6 @@ MapPopup.propTypes = {
   data: PropTypes.object.isRequired,
   mapUnClick: PropTypes.func.isRequired,
   setClick: PropTypes.func.isRequired,
-  setPlaceFormDialogOpen: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -99,7 +96,6 @@ const mapStateToProps = (state) => ({
 const mapActionsToProps = {
   mapUnClick,
   setClick,
-  setPlaceFormDialogOpen,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(MapPopup);

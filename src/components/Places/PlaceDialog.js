@@ -11,10 +11,16 @@ import DialogContent from "@material-ui/core/DialogContent";
 import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import Tooltip from "@material-ui/core/Tooltip";
+import IconButton from "@material-ui/core/IconButton";
+// Icons
+import OpenDialogIcon from "@material-ui/icons/Launch";
 // Redux
 import { connect } from "react-redux";
-import { clearSelectedPlace } from "../../redux/actions/dataActions";
-import { setPlaceDialogOpen } from "../../redux/actions/interfaceActions";
+import {
+  setSelectedPlace,
+  clearSelectedPlace,
+} from "../../redux/actions/dataActions";
 
 const useStyles = makeStyles({
   dialogTitle: {
@@ -23,61 +29,66 @@ const useStyles = makeStyles({
   },
 });
 
-const PlaceDialog = ({
-  dialogOpen,
-  setPlaceDialogOpen,
-  clearSelectedPlace,
-}) => {
+const PlaceDialog = ({ place, data, setSelectedPlace, clearSelectedPlace }) => {
   const classes = useStyles();
   // State
   const [selectedTab, setSelectedTab] = useState(0);
+  const [open, setOpen] = useState(false);
+
+  const handleDialogOpen = () => {
+    setOpen(true);
+    setSelectedPlace(place);
+  };
 
   const handleDialogClose = () => {
-    setPlaceDialogOpen(false);
+    setOpen(false);
     clearSelectedPlace();
   };
 
-  // TODO: remove interface redux state and move dialogs triggers to their dialog components
-
   return (
-    <Dialog
-      open={dialogOpen}
-      onClose={handleDialogClose}
-      maxWidth="sm"
-      fullWidth
-    >
-      <DialogTitle className={classes.dialogTitle}>
-        <AppBar position="static" color="primary">
-          <Tabs
-            value={selectedTab}
-            onChange={(e, value) => setSelectedTab(value)}
-            centered
-          >
-            <Tab label="About" />
-            <Tab label="Rating" />
-          </Tabs>
-        </AppBar>
-      </DialogTitle>
-      <DialogContent>
-        {selectedTab === 0 && <AboutPlaceTab />}
-        {selectedTab === 1 && <PlaceRatingTab />}
-      </DialogContent>
-    </Dialog>
+    <>
+      <Tooltip title="Open Place">
+        <IconButton onClick={handleDialogOpen}>
+          <OpenDialogIcon color="primary" fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      {data.selectedPlace && (
+        <Dialog open={open} onClose={handleDialogClose} fullWidth>
+          <DialogTitle className={classes.dialogTitle}>
+            <AppBar position="static" color="primary">
+              <Tabs
+                value={selectedTab}
+                onChange={(e, value) => setSelectedTab(value)}
+                centered
+              >
+                <Tab label="About" />
+                <Tab label="Rating" />
+              </Tabs>
+            </AppBar>
+          </DialogTitle>
+          <DialogContent>
+            {selectedTab === 0 && <AboutPlaceTab />}
+            {selectedTab === 1 && <PlaceRatingTab />}
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 };
 
 PlaceDialog.propTypes = {
-  dialogOpen: PropTypes.bool.isRequired,
-  setPlaceDialogOpen: PropTypes.func.isRequired,
+  place: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
   clearSelectedPlace: PropTypes.func.isRequired,
+  setSelectedPlace: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  dialogOpen: state.interface.dialogsOpen.selectedPlace,
+  data: state.data,
 });
 
 const mapActionsToProps = {
-  setPlaceDialogOpen,
+  setSelectedPlace,
   clearSelectedPlace,
 };
 

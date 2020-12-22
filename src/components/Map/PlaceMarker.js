@@ -1,25 +1,17 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Marker } from "react-map-gl";
+// Components
+import PlaceDialog from "../Places/PlaceDialog";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Popover from "@material-ui/core/Popover";
 import Typography from "@material-ui/core/Typography";
-import IconButton from "@material-ui/core/IconButton";
-import Tooltip from "@material-ui/core/Tooltip";
 // Icons
 import MarkerIcon from "@material-ui/icons/Room";
 import PhotosIcon from "@material-ui/icons/Collections";
 import StarsIcon from "@material-ui/icons/Star";
 import CommentsIcon from "@material-ui/icons/Comment";
-import OpenDialogIcon from "@material-ui/icons/Launch";
-// Redux
-import { connect } from "react-redux";
-import {
-  setSelectedPlace,
-  clearSelectedPlace,
-} from "../../redux/actions/dataActions";
-import { setPlaceDialogOpen } from "../../redux/actions/interfaceActions";
 
 const useStyles = makeStyles({
   popoverContent: {
@@ -55,26 +47,11 @@ const useStyles = makeStyles({
   },
 });
 
-const PlaceMarker = ({
-  place,
-  setSelectedPlace,
-  clearSelectedPlace,
-  setPlaceDialogOpen,
-}) => {
+const PlaceMarker = ({ place }) => {
   const classes = useStyles();
   // State
   const [anchorEl, setAnchorEl] = useState(false);
   const open = Boolean(anchorEl);
-
-  const handlePopoverClose = () => {
-    setAnchorEl(null);
-    clearSelectedPlace();
-  };
-
-  const handleDialogOpen = () => {
-    setPlaceDialogOpen(true);
-    setAnchorEl(null);
-  };
 
   return (
     <>
@@ -87,9 +64,8 @@ const PlaceMarker = ({
       </Marker>
       <Popover
         open={open}
-        onEnter={() => setSelectedPlace(place)}
         anchorEl={anchorEl}
-        onClose={handlePopoverClose}
+        onClose={() => setAnchorEl(null)}
         anchorOrigin={{
           vertical: "top",
           horizontal: "center",
@@ -102,16 +78,12 @@ const PlaceMarker = ({
         <div className={classes.popoverContent}>
           <div className={classes.popoverHeaderGroup}>
             <Typography variant="h6">{place.location}</Typography>
-            <Tooltip title="Open Place">
-              <IconButton onClick={handleDialogOpen}>
-                <OpenDialogIcon color="primary" fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            <PlaceDialog place={place} />
           </div>
           {place.description ? (
             <Typography variant="subtitle2">{place.description}</Typography>
           ) : (
-            <Typography variant="subtitle2">No description.</Typography>
+            <Typography variant="subtitle2">No description</Typography>
           )}
           {place.photos.length > 0 && (
             <img
@@ -149,19 +121,6 @@ const PlaceMarker = ({
 
 PlaceMarker.propTypes = {
   place: PropTypes.object.isRequired,
-  setSelectedPlace: PropTypes.func.isRequired,
-  clearSelectedPlace: PropTypes.func.isRequired,
-  setPlaceDialogOpen: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => ({
-  data: state.data,
-});
-
-const mapActionsToProps = {
-  setSelectedPlace,
-  clearSelectedPlace,
-  setPlaceDialogOpen,
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(PlaceMarker);
+export default PlaceMarker;

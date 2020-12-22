@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogContent from "@material-ui/core/DialogContent";
 import FormControl from "@material-ui/core/FormControl";
@@ -18,9 +19,12 @@ import Carousel from "react-material-ui-carousel";
 import SettingsIcon from "@material-ui/icons/Settings";
 // Redux
 import { connect } from "react-redux";
-import { setSlideshowDialogOpen } from "../../redux/actions/interfaceActions";
 
 const useStyles = makeStyles({
+  slideshowBtn: {
+    marginLeft: "auto",
+    display: "block",
+  },
   photo: {
     objectFit: "contain",
     width: "100%",
@@ -35,9 +39,10 @@ const useStyles = makeStyles({
   },
 });
 
-const SlideshowDialog = ({ photos, dialogOpen, setSlideshowDialogOpen }) => {
+const SlideshowDialog = ({ photos }) => {
   const classes = useStyles();
   // State
+  const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [autoplaySwitch, setAutoplaySwitch] = useState(true);
   const [autoplayDelay, setAutoplayDelay] = useState(5000);
@@ -90,53 +95,55 @@ const SlideshowDialog = ({ photos, dialogOpen, setSlideshowDialogOpen }) => {
   };
 
   return (
-    <Dialog
-      open={dialogOpen}
-      onClose={() => setSlideshowDialogOpen(false)}
-      maxWidth="md"
-      fullWidth
-    >
-      <DialogContent style={{ padding: "0px 0px 10px 0px" }}>
-        <Carousel
-          autoPlay={autoplaySwitch && !anchorEl}
-          interval={autoplayDelay}
-        >
-          {photos.map((photo, index) => (
-            <img
-              src={photo.url}
-              alt={photo.url}
-              key={index}
-              className={classes.photo}
-            />
-          ))}
-        </Carousel>
-        <Tooltip title="Auto Play">
-          <IconButton
-            className={classes.optionsBtn}
-            onClick={(e) => setAnchorEl(e.currentTarget)}
+    <>
+      <Button
+        color="primary"
+        className={classes.slideshowBtn}
+        onClick={() => setOpen(true)}
+      >
+        Slideshow
+      </Button>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogContent style={{ padding: "0px 0px 10px 0px" }}>
+          <Carousel
+            autoPlay={autoplaySwitch && !anchorEl}
+            interval={autoplayDelay}
           >
-            <SettingsIcon />
-          </IconButton>
-        </Tooltip>
-        <AutoPlayPopover />
-      </DialogContent>
-    </Dialog>
+            {photos.map((photo, index) => (
+              <img
+                src={photo.url}
+                alt={photo.url}
+                key={index}
+                className={classes.photo}
+              />
+            ))}
+          </Carousel>
+          <Tooltip title="Auto Play">
+            <IconButton
+              className={classes.optionsBtn}
+              onClick={(e) => setAnchorEl(e.currentTarget)}
+            >
+              <SettingsIcon />
+            </IconButton>
+          </Tooltip>
+          <AutoPlayPopover />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
 SlideshowDialog.propTypes = {
   photos: PropTypes.array.isRequired,
-  dialogOpen: PropTypes.bool.isRequired,
-  setSlideshowDialogOpen: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   photos: state.data.selectedPlace.photos,
-  dialogOpen: state.interface.dialogsOpen.slideshow,
 });
 
-const mapActionsToProps = {
-  setSlideshowDialogOpen,
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(SlideshowDialog);
+export default connect(mapStateToProps, null)(SlideshowDialog);

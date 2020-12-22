@@ -29,7 +29,6 @@ import {
   editPlace,
   clearError,
 } from "../../redux/actions/dataActions";
-import { setPlaceFormDialogOpen } from "../../redux/actions/interfaceActions";
 // FilePond
 import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -91,14 +90,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const PlaceFormDialog = ({
+  open,
+  setOpen,
   data,
   selectedPlace,
-  dialogOpen,
   resetCoords,
   clearError,
   addPlace,
   editPlace,
-  setPlaceFormDialogOpen,
 }) => {
   const classes = useStyles();
   const MARKER_COLORS = [
@@ -109,7 +108,7 @@ const PlaceFormDialog = ({
     "#4caf50",
     "#8561c5",
   ];
-  // State
+  // States
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [markerColor, setMarkerColor] = useState(MARKER_COLORS[0]);
@@ -130,7 +129,7 @@ const PlaceFormDialog = ({
   };
 
   const handleDialogClose = () => {
-    setPlaceFormDialogOpen(false);
+    setOpen(false);
     setStoragePhotos([]);
     setPhotos([]);
     resetCoords();
@@ -215,7 +214,7 @@ const PlaceFormDialog = ({
   }, [storagePhotos, selectedPlace]);
 
   return (
-    <Dialog open={dialogOpen} onClose={handleDialogClose}>
+    <Dialog open={open} onClose={handleDialogClose}>
       <DialogTitle className={classes.dialogTitle}>
         {selectedPlace ? (
           <p>Edit place</p>
@@ -322,20 +321,19 @@ const PlaceFormDialog = ({
 };
 
 PlaceFormDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  setOpen: PropTypes.func.isRequired,
   data: PropTypes.object.isRequired,
-  selectedPlace: PropTypes.object,
-  dialogOpen: PropTypes.bool.isRequired,
+  selectedPlace: PropTypes.object.isRequired,
   resetCoords: PropTypes.func.isRequired,
   addPlace: PropTypes.func.isRequired,
   editPlace: PropTypes.func.isRequired,
   clearError: PropTypes.func.isRequired,
-  setPlaceFormDialogOpen: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   data: state.data,
   selectedPlace: state.data.selectedPlace,
-  dialogOpen: state.interface.dialogsOpen.placeForm,
 });
 
 const mapActionsToProps = {
@@ -343,7 +341,6 @@ const mapActionsToProps = {
   addPlace,
   editPlace,
   clearError,
-  setPlaceFormDialogOpen,
 };
 
 export default connect(mapStateToProps, mapActionsToProps)(PlaceFormDialog);

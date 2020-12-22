@@ -16,7 +16,6 @@ import Checkbox from "@material-ui/core/Checkbox";
 // Icons
 import LocationIcon from "@material-ui/icons/GpsFixed";
 import OptionsIcon from "@material-ui/icons/Settings";
-import ThemeIcon from "@material-ui/icons/Explore";
 // Redux
 import { connect } from "react-redux";
 import {
@@ -26,7 +25,6 @@ import {
   getAllPlaces,
   clearPlaces,
 } from "../../redux/actions/dataActions";
-import { setMapThemeDialogOpen } from "../../redux/actions/interfaceActions";
 // Firebase
 import { auth, db } from "../../utilities/firebase";
 
@@ -56,7 +54,6 @@ const useStyles = makeStyles((theme) => ({
 const MapButtons = ({
   data,
   setCurrentUserPosition,
-  setMapThemeDialogOpen,
   getPublicPlaces,
   getUserPlaces,
   getAllPlaces,
@@ -89,12 +86,7 @@ const MapButtons = ({
             Map Options
           </Typography>
           <List>
-            <ListItem onClick={() => setMapThemeDialogOpen(true)} button>
-              <ListItemIcon>
-                <ThemeIcon className={classes.themeIcon} />
-              </ListItemIcon>
-              <ListItemText primary="Map Theme" />
-            </ListItem>
+            <MapThemeDialog setAnchorEl={setAnchorEl} />
             <ListItem
               onClick={() => setPublicPlaces((publicPlaces) => !publicPlaces)}
               button
@@ -115,7 +107,6 @@ const MapButtons = ({
             </ListItem>
           </List>
         </Popover>
-        <MapThemeDialog setAnchorEl={setAnchorEl} />
       </>
     );
   };
@@ -182,7 +173,6 @@ const MapButtons = ({
 MapButtons.propTypes = {
   data: PropTypes.object.isRequired,
   setCurrentUserPosition: PropTypes.func.isRequired,
-  setMapThemeDialogOpen: PropTypes.func.isRequired,
   getPublicPlaces: PropTypes.func.isRequired,
   getUserPlaces: PropTypes.func.isRequired,
   getAllPlaces: PropTypes.func.isRequired,
@@ -195,7 +185,6 @@ const mapStateToProps = (state) => ({
 
 const mapActionsToProps = {
   setCurrentUserPosition,
-  setMapThemeDialogOpen,
   getPublicPlaces,
   getUserPlaces,
   getAllPlaces,
