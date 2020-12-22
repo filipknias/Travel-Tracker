@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+// Components
+import PlaceRatingTab from "./PlaceRatingTab";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
@@ -51,9 +53,24 @@ const useStyles = makeStyles({
     marginLeft: "auto",
     display: "block",
   },
+  leaveCommentGroup: {
+    display: "flex",
+    alignItems: "center",
+    margin: "5px 0 20px 0",
+  },
+  commentInput: {
+    flex: 1,
+    marginLeft: 20,
+  },
+  commentBtn: {
+    marginTop: 20,
+    marginLeft: "auto",
+    display: "block",
+  },
 });
 
 const PlaceDialog = ({
+  user,
   data,
   dialogOpen,
   setPlaceDialogOpen,
@@ -88,6 +105,8 @@ const PlaceDialog = ({
     });
   }, []);
 
+  // TODO: remove interface redux state and move dialogs triggers to their dialog components
+  // TODO: move to another component
   const AboutPlace = () => {
     return (
       <>
@@ -107,7 +126,7 @@ const PlaceDialog = ({
               )}
             </div>
           </div>
-          {auth.currentUser.uid === data.selectedPlace.userId && (
+          {user.auth && auth.currentUser.uid === data.selectedPlace.userId && (
             <div>
               <Tooltip title="Edit">
                 <IconButton onClick={() => setPlaceFormDialogOpen(true)}>
@@ -146,10 +165,6 @@ const PlaceDialog = ({
     );
   };
 
-  const PlaceRating = () => {
-    return <h1>Rating</h1>;
-  };
-
   return (
     <Dialog
       open={dialogOpen}
@@ -171,13 +186,14 @@ const PlaceDialog = ({
       </DialogTitle>
       <DialogContent>
         {selectedTab === 0 && <AboutPlace />}
-        {selectedTab === 1 && <PlaceRating />}
+        {selectedTab === 1 && <PlaceRatingTab />}
       </DialogContent>
     </Dialog>
   );
 };
 
 PlaceDialog.propTypes = {
+  user: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
   dialogOpen: PropTypes.bool.isRequired,
   setPlaceDialogOpen: PropTypes.func.isRequired,
@@ -188,6 +204,7 @@ PlaceDialog.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
+  user: state.user,
   data: state.data,
   dialogOpen: state.interface.dialogsOpen.selectedPlace,
 });

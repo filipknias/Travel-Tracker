@@ -13,6 +13,7 @@ import {
   CLEAR_ERROR,
   START_LOADING,
   STOP_LOADING,
+  SET_RATINGS,
 } from "../types";
 // Firebase
 import firebase from "firebase/app";
@@ -222,7 +223,7 @@ export const editPlace = (
     });
 
     // Save photos in storage
-    const photosUrls = photosFilesFormatted.map(async (photo) => {
+    const photosUrls = await photosFilesFormatted.map(async (photo) => {
       const fileName = uuid();
       const fileRef = storageRef.child(fileName);
       await fileRef.put(photo);
@@ -326,4 +327,27 @@ export const getAllPlaces = () => async (dispatch) => {
 
 export const clearPlaces = () => (dispatch) => {
   dispatch({ type: CLEAR_PLACES });
+};
+
+export const ratePlace = (rate, comment, placeId, userData) => async (
+  dispatch
+) => {
+  dispatch({ type: START_LOADING });
+  try {
+    const ratingsRef = db.collection("ratings");
+    await ratingsRef.add({
+      placeId,
+      user: userData,
+      rate,
+      comment,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (err) {
+    console.log(err);
+    dispatch({
+      type: SET_ERROR,
+      payload: "Somethink went wrong. Please try again",
+    });
+  }
+  dispatch({ type: STOP_LOADING });
 };

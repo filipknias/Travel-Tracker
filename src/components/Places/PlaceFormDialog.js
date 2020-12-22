@@ -212,7 +212,7 @@ const PlaceFormDialog = ({
     } else {
       setPhotosLoaded(true);
     }
-  }, [storagePhotos]);
+  }, [storagePhotos, selectedPlace]);
 
   return (
     <Dialog open={dialogOpen} onClose={handleDialogClose}>
@@ -280,7 +280,7 @@ const PlaceFormDialog = ({
               oninit={filePondInit}
               disabled={data.loading || !photosLoaded}
               className={classes.filePondInput}
-              files={!data.loading ? photos.concat(storagePhotos) : photos}
+              files={data.loading ? photos : photos.concat(storagePhotos)}
               acceptedFileTypes={["image/png", "image/jpeg"]}
               labelFileTypeNotAllowed="Invalid file type"
               allowMultiple={true}

@@ -73,8 +73,8 @@ const Map = ({
         onClick={(PointerEvent) => mapClick(PointerEvent.lngLat)}
         onMouseDown={mapUnClick}
       >
-        {data.places.map((place, index) => (
-          <PlaceMarker key={index} place={place} />
+        {data.places.map((place) => (
+          <PlaceMarker key={place.id} place={place} />
         ))}
       </ReactMapGL>
       <Backdrop open={data.loading} className={classes.backdrop}>

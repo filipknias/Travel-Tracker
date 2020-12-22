@@ -24,8 +24,6 @@ const useStyles = makeStyles({
   photo: {
     objectFit: "contain",
     width: "100%",
-    height: "100%",
-    maxHeight: "100%",
   },
   optionsBtn: {
     position: "absolute",
