@@ -49,7 +49,7 @@ const useStyles = makeStyles({
   },
 });
 
-const PlaceDialog = ({ user, data, ratePlace }) => {
+const PlaceRatingTab = ({ user, data, ratePlace }) => {
   const classes = useStyles();
   // State
   const [comment, setComment] = useState("");
@@ -179,7 +179,7 @@ const PlaceDialog = ({ user, data, ratePlace }) => {
   );
 };
 
-PlaceDialog.propTypes = {
+PlaceRatingTab.propTypes = {
   user: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
   ratePlace: PropTypes.func.isRequired,
@@ -194,4 +194,4 @@ const mapActionsToProps = {
   ratePlace,
 };
 
-export default connect(mapStateToProps, mapActionsToProps)(PlaceDialog);
+export default connect(mapStateToProps, mapActionsToProps)(PlaceRatingTab);
