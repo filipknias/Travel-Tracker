@@ -12,12 +12,10 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import Divider from "@material-ui/core/Divider";
-import Hidden from "@material-ui/core/Hidden";
 // Icons
 import LogoutIcon from "@material-ui/icons/ExitToApp";
 import ManageProfileIcon from "@material-ui/icons/AccountBox";
 import ResetPasswordIcon from "@material-ui/icons/Lock";
-import GalleryIcon from "@material-ui/icons/Collections";
 // Redux
 import { connect } from "react-redux";
 import { logoutUser } from "../../redux/actions/userActions";
@@ -38,6 +36,9 @@ const useStyles = makeStyles({
   profileNameData: {
     marginLeft: 20,
   },
+  avatarLetter: {
+    fontSize: 15,
+  },
 });
 
 const ProfilePopover = ({ user, logoutUser }) => {
@@ -50,10 +51,17 @@ const ProfilePopover = ({ user, logoutUser }) => {
     <>
       <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
         <Avatar
-          alt="profile-image"
+          alt="User avatar"
           src={user.data.photoURL}
           className={classes.profileAvatar}
-        />
+          style={{ backgroundColor: user.data.avatarColor }}
+        >
+          {user.auth && (
+            <p className={classes.avatarLetter}>
+              {user.data.displayName.charAt(0).toUpperCase()}
+            </p>
+          )}
+        </Avatar>
       </IconButton>
       <Popover
         open={open}
@@ -66,10 +74,14 @@ const ProfilePopover = ({ user, logoutUser }) => {
       >
         <div className={classes.profileInfo}>
           <Avatar
-            src={user.data.photoURL}
-            alt="profile-image"
-            className={classes.popoverAvatar}
-          />
+            className={classes.commentAvatar}
+            alt="User avatar"
+            style={{ backgroundColor: user.data.avatarColor }}
+          >
+            {user.auth && (
+              <p>{user.data.displayName.charAt(0).toUpperCase()}</p>
+            )}
+          </Avatar>
           <div className={classes.profileNameData}>
             <Typography variant="h6">{user.data.displayName}</Typography>
             <Typography variant="body2">{user.data.email}</Typography>
@@ -77,14 +89,6 @@ const ProfilePopover = ({ user, logoutUser }) => {
         </div>
         <Divider />
         <List>
-          <Hidden mdUp>
-            <ListItem button>
-              <ListItemIcon>
-                <GalleryIcon />
-              </ListItemIcon>
-              <ListItemText primary="Gallery" />
-            </ListItem>
-          </Hidden>
           <ListItem button>
             <ListItemIcon>
               <ManageProfileIcon />

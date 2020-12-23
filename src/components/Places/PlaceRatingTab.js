@@ -14,7 +14,11 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import { connect } from "react-redux";
 import { ratePlace } from "../../redux/actions/dataActions";
 // Firebase
-import { db, auth } from "../../utilities/firebase";
+import { db } from "../../utilities/firebase";
+// Day js
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 const useStyles = makeStyles({
   leaveCommentGroup: {
@@ -35,7 +39,7 @@ const useStyles = makeStyles({
     display: "flex",
     justifyContent: "flex-end",
   },
-  userGroup: {
+  userCommentGroup: {
     display: "flex",
     alignItems: "center",
   },
@@ -43,9 +47,14 @@ const useStyles = makeStyles({
     marginRight: 10,
     width: "30px",
     height: "30px",
+    fontSize: 15,
   },
   commentGroup: {
-    margin: "10px 0",
+    margin: "30px 0",
+  },
+  commentRateGroup: {
+    display: "flex",
+    alignItems: "center",
   },
 });
 
@@ -92,8 +101,8 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
     e.preventDefault();
     const comment = commentRef.current.value;
     const userData = {
-      displayName: auth.currentUser.displayName,
-      photoURL: auth.currentUser.photoURL,
+      displayName: user.data.displayName,
+      avatarColor: user.data.avatarColor,
     };
     await ratePlace(rate, comment, data.selectedPlace.id, userData);
     handleResetRate();
@@ -110,7 +119,12 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
               onChange={(e, value) => setRate(value)}
             />
             <div className={classes.leaveCommentGroup}>
-              <Avatar src={user.data.photoURL} alt="User avatar" />
+              <Avatar
+                style={{ backgroundColor: user.data.avatarColor }}
+                alt="User avatar"
+              >
+                {user.data.displayName.charAt(0).toUpperCase()}
+              </Avatar>
               <TextField
                 name="text"
                 onChange={(e) => setComment(e.target.value)}
@@ -151,18 +165,28 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
             <div style={{ marginTop: 10 }}>
               {ratings.map((rate, index) => (
                 <div key={index} className={classes.commentGroup}>
-                  <div className={classes.userGroup}>
+                  <div className={classes.userCommentGroup}>
                     <Avatar
                       className={classes.commentAvatar}
-                      src={rate.user.photoURL}
                       alt="User avatar"
-                    />
+                      style={{ backgroundColor: rate.user.avatarColor }}
+                    >
+                      {rate.user.displayName.charAt(0).toUpperCase()}
+                    </Avatar>
                     <Typography variant="body1">
                       {rate.user.displayName}
                     </Typography>
                   </div>
                   <div style={{ marginTop: 5 }}>
-                    <Rating name="user-rating" value={rate.rate} readOnly />
+                    <div className={classes.commentRateGroup}>
+                      <Rating name="user-rating" value={rate.rate} readOnly />
+                      <Typography
+                        variant="subtitle1"
+                        style={{ marginLeft: 15 }}
+                      >
+                        {dayjs().fromNow(rate.createdAt.toDate())}
+                      </Typography>
+                    </div>
                     <Typography variant="h6">{rate.comment}</Typography>
                   </div>
                 </div>
@@ -171,6 +195,7 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
           </div>
         </>
       ) : (
+        // TODO: correct this section
         <Typography variant="h5" style={{ textAlign: "center" }}>
           Sign up to give your rate.
         </Typography>

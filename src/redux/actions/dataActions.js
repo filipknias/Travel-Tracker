@@ -13,7 +13,6 @@ import {
   CLEAR_ERROR,
   START_LOADING,
   STOP_LOADING,
-  SET_RATINGS,
 } from "../types";
 // Firebase
 import firebase from "firebase/app";
@@ -260,6 +259,7 @@ export const editPlace = (
   dispatch({ type: STOP_LOADING });
 };
 
+// TODO: wrap get places actions in try catch blocks
 export const getPublicPlaces = () => async (dispatch) => {
   dispatch({ type: START_LOADING });
 

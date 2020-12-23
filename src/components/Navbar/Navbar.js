@@ -50,7 +50,6 @@ const Navbar = ({ user }) => {
   const classes = useStyles();
   const [searchBarMobile, setSearchBarMobile] = useState(false);
 
-  // Add window event to hide mobile search bar on resizing window
   useEffect(() => {
     window.addEventListener("resize", () => {
       setSearchBarMobile(false);

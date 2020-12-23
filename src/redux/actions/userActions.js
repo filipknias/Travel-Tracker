@@ -9,78 +9,81 @@ import {
 } from "../types";
 // Firebase
 import { auth } from "../../utilities/firebase";
-
-// TODO: instead of setting user custom photo use avatar mui component, random user color and set first letter as a avatar with users color bg
+// Material UI
+import {
+  orange,
+  purple,
+  green,
+  blue,
+  blueGrey,
+} from "@material-ui/core/colors";
 
 export const signUpUser = (email, password, confirmPassword, history) => async (
   dispatch
 ) => {
-  // Clear error
-  dispatch({ type: CLEAR_ERROR });
-  // Check if passwords are the same
-  if (password !== confirmPassword) {
-    return dispatch({
-      type: SET_ERROR,
-      payload: "Passwords must be the same.",
-    });
-  }
-  // Start loading
-  dispatch({ type: START_LOADING });
   try {
-    // Create new user
+    if (password !== confirmPassword) {
+      return dispatch({
+        type: SET_ERROR,
+        payload: "Passwords must be the same.",
+      });
+    }
+
+    dispatch({ type: CLEAR_ERROR });
+    dispatch({ type: START_LOADING });
+
     await auth.createUserWithEmailAndPassword(email, password);
-    // Set user displayName
     const newUser = auth.currentUser;
     const displayName = newUser.email.split("@")[0];
-    // Update displayName and photoURL
-    const photoURL = `https://firebasestorage.googleapis.com/v0/b/${process.env.REACT_APP_STORAGE_BUCKET}/o/no-profile-image.png?alt=media&token=51b65f74-9c00-42a2-9632-bdc3134db157`;
+
+    const AVATAR_COLORS = [
+      orange[900],
+      purple[900],
+      green[900],
+      blue[900],
+      blueGrey[900],
+    ];
+    const randomColor = Math.floor(Math.random() * AVATAR_COLORS.length);
+
     await newUser.updateProfile({
       displayName,
-      photoURL,
+      photoURL: AVATAR_COLORS[randomColor],
     });
-    // Set updated user state
+
     dispatch(setCurrentUser());
-    // Redirect to home page
     history.push("/");
   } catch (err) {
-    // Set error
     dispatch({
       type: SET_ERROR,
       payload: err.message,
     });
   }
-  // Stop loading
   dispatch({ type: STOP_LOADING });
 };
 
 export const loginUser = (email, password, history) => async (dispatch) => {
-  // Clear error
-  dispatch({ type: CLEAR_ERROR });
-  // Start loading
-  dispatch({ type: START_LOADING });
   try {
-    // Login user
+    dispatch({ type: CLEAR_ERROR });
+    dispatch({ type: START_LOADING });
+
     await auth.signInWithEmailAndPassword(email, password);
-    // Redirect to home page
     history.push("/");
   } catch (err) {
-    // Set error
     dispatch({
       type: SET_ERROR,
       payload: err.message,
     });
   }
-  // Stop loading
   dispatch({ type: STOP_LOADING });
 };
 
 export const setCurrentUser = () => async (dispatch) => {
   const user = auth.currentUser;
-  // Set user state
+
   const userData = {
     email: user.email,
     displayName: user.displayName,
-    photoURL: user.photoURL,
+    avatarColor: user.photoURL,
   };
   dispatch({
     type: SET_USER,
@@ -94,29 +97,21 @@ export const logoutUser = () => (dispatch) => {
 };
 
 export const changeUserPassword = (email, history) => async (dispatch) => {
-  // Clear error
-  dispatch({ type: CLEAR_ERROR });
-  // Start loading
-  dispatch({ type: START_LOADING });
   try {
-    // Send email with reset password
+    dispatch({ type: CLEAR_ERROR });
+    dispatch({ type: START_LOADING });
+
     await auth.sendPasswordResetEmail(email);
-    // Stop loading
-    dispatch({ type: STOP_LOADING });
-    // Redirect to login page
     history.push("/login");
   } catch (err) {
-    // Set error
     dispatch({
       type: SET_ERROR,
       payload: err.message,
     });
   }
-  // Stop loading
   dispatch({ type: STOP_LOADING });
 };
 
 export const clearError = () => (dispatch) => {
-  // Clear error state
   dispatch({ type: CLEAR_ERROR });
 };

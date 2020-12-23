@@ -324,7 +324,7 @@ PlaceFormDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   setOpen: PropTypes.func.isRequired,
   data: PropTypes.object.isRequired,
-  selectedPlace: PropTypes.object.isRequired,
+  selectedPlace: PropTypes.object,
   resetCoords: PropTypes.func.isRequired,
   addPlace: PropTypes.func.isRequired,
   editPlace: PropTypes.func.isRequired,

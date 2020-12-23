@@ -12,6 +12,7 @@
     "@testing-library/react": "^11.1.1",
     "@testing-library/user-event": "^12.2.0",
     "date-fns": "^2.16.1",
+    "dayjs": "^1.9.7",
     "filepond": "^4.23.1",
     "filepond-plugin-file-validate-type": "^1.2.5",
     "filepond-plugin-image-preview": "^4.6.4",
