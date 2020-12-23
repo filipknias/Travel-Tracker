@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
+import Tooltip from "@material-ui/core/Tooltip";
+import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
 import TextField from "@material-ui/core/TextField";
@@ -20,7 +23,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   leaveCommentGroup: {
     display: "flex",
     alignItems: "center",
@@ -50,13 +53,23 @@ const useStyles = makeStyles({
     fontSize: 15,
   },
   commentGroup: {
-    margin: "30px 0",
+    margin: "20px 0",
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
   },
   commentRateGroup: {
     display: "flex",
     alignItems: "center",
   },
-});
+  signUpGroup: {
+    marginBottom: 15,
+  },
+  singUpLink: {
+    textDecoration: "underline",
+    color: theme.palette.primary.main,
+  },
+}));
 
 const PlaceRatingTab = ({ user, data, ratePlace }) => {
   const classes = useStyles();
@@ -77,7 +90,10 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
     query.onSnapshot((snapshot) => {
       const docs = [];
       snapshot.forEach((doc) => {
-        docs.push(doc.data());
+        docs.push({
+          id: doc.id,
+          ...doc.data(),
+        });
       });
 
       setRatings(docs);
@@ -106,6 +122,11 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
     };
     await ratePlace(rate, comment, data.selectedPlace.id, userData);
     handleResetRate();
+  };
+
+  const deleteRate = async (rateId) => {
+    const docRef = db.collection("ratings").doc(rateId);
+    await docRef.delete();
   };
 
   return (
@@ -157,49 +178,66 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
               </div>
             )}
           </form>
-          <div>
-            <Typography variant="h6">
-              Place rated {data.selectedPlace.commentCount} times
-            </Typography>
+        </>
+      ) : (
+        <div className={classes.signUpGroup}>
+          <Typography variant="h6">
+            Sign up{" "}
+            <Link className={classes.singUpLink} to="/login">
+              here
+            </Link>{" "}
+            to give your rate
+          </Typography>
+        </div>
+      )}
 
-            <div style={{ marginTop: 10 }}>
-              {ratings.map((rate, index) => (
-                <div key={index} className={classes.commentGroup}>
-                  <div className={classes.userCommentGroup}>
-                    <Avatar
-                      className={classes.commentAvatar}
-                      alt="User avatar"
-                      style={{ backgroundColor: rate.user.avatarColor }}
-                    >
-                      {rate.user.displayName.charAt(0).toUpperCase()}
-                    </Avatar>
-                    <Typography variant="body1">
-                      {rate.user.displayName}
-                    </Typography>
-                  </div>
-                  <div style={{ marginTop: 5 }}>
-                    <div className={classes.commentRateGroup}>
-                      <Rating name="user-rating" value={rate.rate} readOnly />
+      <div>
+        <Typography variant="body1">
+          Place rated {data.selectedPlace.commentCount} times
+        </Typography>
+
+        <div style={{ marginTop: 10 }}>
+          {ratings.map((rate, index) => (
+            <div key={index} className={classes.commentGroup}>
+              <div>
+                <div className={classes.userCommentGroup}>
+                  <Avatar
+                    className={classes.commentAvatar}
+                    alt="User avatar"
+                    style={{ backgroundColor: rate.user.avatarColor }}
+                  >
+                    {rate.user.displayName.charAt(0).toUpperCase()}
+                  </Avatar>
+                  <Typography variant="body1">
+                    {rate.user.displayName}
+                  </Typography>
+                </div>
+                <div style={{ marginTop: 5 }}>
+                  <div className={classes.commentRateGroup}>
+                    <Rating name="user-rating" value={rate.rate} readOnly />
+                    {rate.createdAt && (
                       <Typography
                         variant="subtitle1"
                         style={{ marginLeft: 15 }}
                       >
                         {dayjs().fromNow(rate.createdAt.toDate())}
                       </Typography>
-                    </div>
-                    <Typography variant="h6">{rate.comment}</Typography>
+                    )}
                   </div>
+                  <Typography variant="h6">{rate.comment}</Typography>
                 </div>
-              ))}
+              </div>
+              {user.auth && user.data.id === data.selectedPlace.userId && (
+                <Tooltip title="Delete">
+                  <IconButton onClick={() => deleteRate(rate.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
             </div>
-          </div>
-        </>
-      ) : (
-        // TODO: correct this section
-        <Typography variant="h5" style={{ textAlign: "center" }}>
-          Sign up to give your rate.
-        </Typography>
-      )}
+          ))}
+        </div>
+      </div>
     </>
   );
 };

@@ -21,6 +21,9 @@ import {
 export const signUpUser = (email, password, confirmPassword, history) => async (
   dispatch
 ) => {
+  dispatch({ type: CLEAR_ERROR });
+  dispatch({ type: START_LOADING });
+
   try {
     if (password !== confirmPassword) {
       return dispatch({
@@ -28,9 +31,6 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
         payload: "Passwords must be the same.",
       });
     }
-
-    dispatch({ type: CLEAR_ERROR });
-    dispatch({ type: START_LOADING });
 
     await auth.createUserWithEmailAndPassword(email, password);
     const newUser = auth.currentUser;
@@ -62,10 +62,10 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
 };
 
 export const loginUser = (email, password, history) => async (dispatch) => {
-  try {
-    dispatch({ type: CLEAR_ERROR });
-    dispatch({ type: START_LOADING });
+  dispatch({ type: CLEAR_ERROR });
+  dispatch({ type: START_LOADING });
 
+  try {
     await auth.signInWithEmailAndPassword(email, password);
     history.push("/");
   } catch (err) {
@@ -81,6 +81,7 @@ export const setCurrentUser = () => async (dispatch) => {
   const user = auth.currentUser;
 
   const userData = {
+    id: user.uid,
     email: user.email,
     displayName: user.displayName,
     avatarColor: user.photoURL,
@@ -97,10 +98,9 @@ export const logoutUser = () => (dispatch) => {
 };
 
 export const changeUserPassword = (email, history) => async (dispatch) => {
+  dispatch({ type: CLEAR_ERROR });
+  dispatch({ type: START_LOADING });
   try {
-    dispatch({ type: CLEAR_ERROR });
-    dispatch({ type: START_LOADING });
-
     await auth.sendPasswordResetEmail(email);
     history.push("/login");
   } catch (err) {

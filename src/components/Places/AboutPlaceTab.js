@@ -15,7 +15,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import { connect } from "react-redux";
 import { setSelectedPlace } from "../../redux/actions/dataActions";
 // Firebase
-import { db, auth } from "../../utilities/firebase";
+import { db } from "../../utilities/firebase";
 
 const useStyles = makeStyles({
   dialogTitle: {
@@ -78,7 +78,7 @@ const AboutPlaceTab = ({ user, data, setSelectedPlace }) => {
             )}
           </div>
         </div>
-        {user.auth && auth.currentUser.uid === data.selectedPlace.userId && (
+        {user.auth && user.data.id === data.selectedPlace.userId && (
           <div>
             <Tooltip title="Edit">
               <IconButton onClick={() => setFormOpen(true)}>

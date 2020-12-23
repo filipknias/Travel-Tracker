@@ -117,11 +117,11 @@ export const addPlace = (
   publicStatus,
   visitDate
 ) => async (dispatch) => {
-  try {
-    if (location.trim() === "") return;
+  dispatch({ type: START_LOADING });
+  dispatch({ type: CLEAR_ERROR });
 
-    dispatch({ type: START_LOADING });
-    dispatch({ type: CLEAR_ERROR });
+  try {
+    if (location.trim() === "") return "";
 
     // Check if location with this name exist when location is public
     if (publicStatus === true) {
@@ -168,7 +168,7 @@ export const addPlace = (
       ratingAvg: 0,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     };
-    if (description.trim() !== "") {
+    if (description && description.trim() !== "") {
       createdPlace.description = description;
     }
     await placesRef.add(createdPlace);
@@ -193,11 +193,10 @@ export const editPlace = (
   publicStatus,
   visitDate
 ) => async (dispatch) => {
+  dispatch({ type: START_LOADING });
+  dispatch({ type: CLEAR_ERROR });
   try {
     if (location.trim() === "") return;
-
-    dispatch({ type: START_LOADING });
-    dispatch({ type: CLEAR_ERROR });
 
     // Check if location with this name exist when location is public
     if (publicStatus === true && prevLocation !== location) {
@@ -243,7 +242,7 @@ export const editPlace = (
       public: publicStatus,
       visitDate,
     };
-    if (description.trim() !== "") {
+    if (description && description.trim() !== "") {
       updatedPlace.description = description;
     }
 
@@ -259,7 +258,6 @@ export const editPlace = (
   dispatch({ type: STOP_LOADING });
 };
 
-// TODO: wrap get places actions in try catch blocks
 export const getPublicPlaces = () => async (dispatch) => {
   dispatch({ type: START_LOADING });
 
