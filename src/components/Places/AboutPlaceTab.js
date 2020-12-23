@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 // Components
 import PlaceFormDialog from "./PlaceFormDialog";
 import SlideshowDialog from "./SlideshowDialog";
+import DeletePlaceDialog from "./DeletePlaceDialog";
 // Material UI
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
@@ -10,10 +11,9 @@ import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 // Icons
 import EditIcon from "@material-ui/icons/Create";
-import DeleteIcon from "@material-ui/icons/Delete";
 // Redux
 import { connect } from "react-redux";
-import { setSelectedPlace } from "../../redux/actions/dataActions";
+import { setSelectedPlace, deletePlace } from "../../redux/actions/dataActions";
 // Firebase
 import { db } from "../../utilities/firebase";
 
@@ -37,7 +37,7 @@ const useStyles = makeStyles({
   },
 });
 
-const AboutPlaceTab = ({ user, data, setSelectedPlace }) => {
+const AboutPlaceTab = ({ user, data, setSelectedPlace, deletePlace }) => {
   const classes = useStyles();
   // State
   const [formOpen, setFormOpen] = useState(false);
@@ -53,10 +53,12 @@ const AboutPlaceTab = ({ user, data, setSelectedPlace }) => {
     const placeDoc = db.collection("places").doc(data.selectedPlace.id);
 
     placeDoc.onSnapshot((doc) => {
-      setSelectedPlace({
-        id: doc.id,
-        ...doc.data(),
-      });
+      if (doc.data()) {
+        setSelectedPlace({
+          id: doc.id,
+          ...doc.data(),
+        });
+      }
     });
   }, []);
 
@@ -85,11 +87,7 @@ const AboutPlaceTab = ({ user, data, setSelectedPlace }) => {
                 <EditIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Delete">
-              <IconButton>
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
+            <DeletePlaceDialog />
             <PlaceFormDialog open={formOpen} setOpen={setFormOpen} />
           </div>
         )}
@@ -114,6 +112,7 @@ AboutPlaceTab.propTypes = {
   user: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
   setSelectedPlace: PropTypes.func.isRequired,
+  deletePlace: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -121,4 +120,9 @@ const mapStateToProps = (state) => ({
   data: state.data,
 });
 
-export default connect(mapStateToProps, { setSelectedPlace })(AboutPlaceTab);
+const mapActionsToProps = {
+  setSelectedPlace,
+  deletePlace,
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(AboutPlaceTab);

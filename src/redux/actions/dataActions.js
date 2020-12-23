@@ -349,3 +349,19 @@ export const ratePlace = (rate, comment, placeId, userData) => async (
   }
   dispatch({ type: STOP_LOADING });
 };
+
+export const deletePlace = (placeId) => async (dispatch) => {
+  dispatch({ type: START_LOADING });
+
+  try {
+    const docRef = db.collection("places").doc(placeId);
+    await docRef.delete();
+  } catch {
+    dispatch({
+      type: SET_ERROR,
+      payload: "Somethink went wrong. Please try again",
+    });
+  }
+
+  dispatch({ type: STOP_LOADING });
+};
