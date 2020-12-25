@@ -17,13 +17,17 @@ import ThemeIcon from "@material-ui/icons/Explore";
 import { connect } from "react-redux";
 import { setMapStyle } from "../../redux/actions/dataActions";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   themeIcon: {
     marginLeft: 10,
   },
   dialogTitle: {
     paddingLeft: 80,
     paddingRight: 80,
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: 40,
+      paddingRight: 40,
+    },
   },
   dialogContent: {
     padding: 0,
@@ -31,7 +35,7 @@ const useStyles = makeStyles({
   submitButton: {
     marginTop: 10,
   },
-});
+}));
 
 const MapThemeDialog = ({ data, setMapStyle, setAnchorEl }) => {
   const classes = useStyles();

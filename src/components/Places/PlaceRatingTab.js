@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 // Material UI
@@ -13,6 +13,7 @@ import Rating from "@material-ui/lab/Rating";
 import CircularProgress from "@material-ui/core/CircularProgress";
 // Icons
 import DeleteIcon from "@material-ui/icons/Delete";
+import PrivateIcon from "@material-ui/icons/Lock";
 // Redux
 import { connect } from "react-redux";
 import { ratePlace } from "../../redux/actions/dataActions";
@@ -21,7 +22,9 @@ import { db } from "../../utilities/firebase";
 // Day js
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import localizedFormat from "dayjs/plugin/localizedFormat";
 dayjs.extend(relativeTime);
+dayjs.extend(localizedFormat);
 
 const useStyles = makeStyles((theme) => ({
   leaveCommentGroup: {
@@ -69,6 +72,14 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: "underline",
     color: theme.palette.primary.main,
   },
+  privatePlaceGroup: {
+    display: "flex",
+    margin: "10px 0 20px 0",
+  },
+  privateIcon: {
+    fontSize: 60,
+    marginRight: 10,
+  },
 }));
 
 const PlaceRatingTab = ({ user, data, ratePlace }) => {
@@ -78,8 +89,6 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
   const [rate, setRate] = useState(0);
   const [ratings, setRatings] = useState([]);
   const [valid, setValid] = useState(false);
-  // Refs
-  const commentRef = useRef();
 
   useEffect(() => {
     const query = db
@@ -87,7 +96,7 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
       .where("placeId", "==", data.selectedPlace.id)
       .orderBy("createdAt", "desc");
 
-    query.onSnapshot((snapshot) => {
+    const unsubscribe = query.onSnapshot((snapshot) => {
       const docs = [];
       snapshot.forEach((doc) => {
         docs.push({
@@ -98,6 +107,10 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
 
       setRatings(docs);
     });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -115,7 +128,6 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const comment = commentRef.current.value;
     const userData = {
       displayName: user.data.displayName,
       avatarColor: user.data.avatarColor,
@@ -131,113 +143,123 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
 
   return (
     <>
-      {user.auth ? (
+      {data.selectedPlace.public ? (
         <>
-          <form onSubmit={handleSubmit}>
-            <Rating
-              name="place-rating"
-              value={rate}
-              onChange={(e, value) => setRate(value)}
-            />
-            <div className={classes.leaveCommentGroup}>
-              <Avatar
-                style={{ backgroundColor: user.data.avatarColor }}
-                alt="User avatar"
-              >
-                {user.data.displayName.charAt(0).toUpperCase()}
-              </Avatar>
-              <TextField
-                name="text"
-                onChange={(e) => setComment(e.target.value)}
-                value={comment}
-                label="Leave a comment"
-                inputRef={commentRef}
-                className={classes.commentInput}
-                multiline
-                required
-              />
+          {user.auth ? (
+            <>
+              <form onSubmit={handleSubmit}>
+                <Rating
+                  name="place-rating"
+                  value={rate}
+                  onChange={(e, value) => setRate(value)}
+                />
+                <div className={classes.leaveCommentGroup}>
+                  <Avatar
+                    style={{ backgroundColor: user.data.avatarColor }}
+                    alt="User avatar"
+                  >
+                    {user.data.displayName.charAt(0).toUpperCase()}
+                  </Avatar>
+                  <TextField
+                    name="text"
+                    onChange={(e) => setComment(e.target.value)}
+                    value={comment}
+                    label="Leave a comment"
+                    className={classes.commentInput}
+                    multiline
+                    required
+                  />
+                </div>
+                {valid && (
+                  <div className={classes.btnGroup}>
+                    <Button type="button" onClick={handleResetRate}>
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      className={classes.commentBtn}
+                      disabled={data.loading}
+                    >
+                      {data.loading ? (
+                        <CircularProgress color="inherit" size={20} />
+                      ) : (
+                        <p>Send</p>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </form>
+            </>
+          ) : (
+            <div className={classes.signUpGroup}>
+              <Typography variant="h6">
+                Sign up{" "}
+                <Link className={classes.singUpLink} to="/login">
+                  here
+                </Link>{" "}
+                to give your rate
+              </Typography>
             </div>
-            {valid && (
-              <div className={classes.btnGroup}>
-                <Button type="button" onClick={handleResetRate}>
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  className={classes.commentBtn}
-                  disabled={data.loading}
-                >
-                  {data.loading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : (
-                    <p>Send</p>
+          )}
+
+          <div>
+            <Typography variant="body1">
+              Place rated {data.selectedPlace.commentCount} times
+            </Typography>
+
+            <div style={{ marginTop: 10 }}>
+              {ratings.map((rate, index) => (
+                <div key={index} className={classes.commentGroup}>
+                  <div>
+                    <div className={classes.userCommentGroup}>
+                      <Avatar
+                        className={classes.commentAvatar}
+                        alt="User avatar"
+                        style={{ backgroundColor: rate.user.avatarColor }}
+                      >
+                        {rate.user.displayName.charAt(0).toUpperCase()}
+                      </Avatar>
+                      <Typography variant="body1">
+                        {rate.user.displayName}
+                      </Typography>
+                    </div>
+                    <div style={{ marginTop: 5 }}>
+                      <div className={classes.commentRateGroup}>
+                        <Rating name="user-rating" value={rate.rate} readOnly />
+                        {rate.createdAt && (
+                          <Typography
+                            variant="subtitle1"
+                            style={{ marginLeft: 15 }}
+                          >
+                            {dayjs(rate.createdAt.toDate()).format("ll")}
+                          </Typography>
+                        )}
+                      </div>
+                      <Typography variant="h6">{rate.comment}</Typography>
+                    </div>
+                  </div>
+                  {user.auth && user.data.id === data.selectedPlace.userId && (
+                    <Tooltip title="Delete">
+                      <IconButton onClick={() => deleteRate(rate.id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
                   )}
-                </Button>
-              </div>
-            )}
-          </form>
+                </div>
+              ))}
+            </div>
+          </div>
         </>
       ) : (
-        <div className={classes.signUpGroup}>
+        <div className={classes.privatePlaceGroup}>
+          <PrivateIcon className={classes.privateIcon} />
           <Typography variant="h6">
-            Sign up{" "}
-            <Link className={classes.singUpLink} to="/login">
-              here
-            </Link>{" "}
-            to give your rate
+            Place is not public and cannot be rated be other users
           </Typography>
         </div>
       )}
-
-      <div>
-        <Typography variant="body1">
-          Place rated {data.selectedPlace.commentCount} times
-        </Typography>
-
-        <div style={{ marginTop: 10 }}>
-          {ratings.map((rate, index) => (
-            <div key={index} className={classes.commentGroup}>
-              <div>
-                <div className={classes.userCommentGroup}>
-                  <Avatar
-                    className={classes.commentAvatar}
-                    alt="User avatar"
-                    style={{ backgroundColor: rate.user.avatarColor }}
-                  >
-                    {rate.user.displayName.charAt(0).toUpperCase()}
-                  </Avatar>
-                  <Typography variant="body1">
-                    {rate.user.displayName}
-                  </Typography>
-                </div>
-                <div style={{ marginTop: 5 }}>
-                  <div className={classes.commentRateGroup}>
-                    <Rating name="user-rating" value={rate.rate} readOnly />
-                    {rate.createdAt && (
-                      <Typography
-                        variant="subtitle1"
-                        style={{ marginLeft: 15 }}
-                      >
-                        {dayjs().fromNow(rate.createdAt.toDate())}
-                      </Typography>
-                    )}
-                  </div>
-                  <Typography variant="h6">{rate.comment}</Typography>
-                </div>
-              </div>
-              {user.auth && user.data.id === data.selectedPlace.userId && (
-                <Tooltip title="Delete">
-                  <IconButton onClick={() => deleteRate(rate.id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
     </>
   );
 };
@@ -253,8 +275,4 @@ const mapStateToProps = (state) => ({
   data: state.data,
 });
 
-const mapActionsToProps = {
-  ratePlace,
-};
-
-export default connect(mapStateToProps, mapActionsToProps)(PlaceRatingTab);
+export default connect(mapStateToProps, { ratePlace })(PlaceRatingTab);

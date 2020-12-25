@@ -263,9 +263,8 @@ export const getPublicPlaces = () => async (dispatch) => {
 
   const publicPlaces = [];
   const placesRef = db.collection("places");
-  const query = placesRef
-    .where("public", "==", true)
-    .where("userId", "!=", auth.currentUser.uid);
+  const query = placesRef.where("public", "==", true);
+
   const docs = await query.get();
   docs.forEach((doc) => {
     publicPlaces.push({
@@ -302,22 +301,35 @@ export const getUserPlaces = (userId) => async (dispatch) => {
   dispatch({ type: STOP_LOADING });
 };
 
-export const getAllPlaces = () => async (dispatch) => {
+export const getAllPlaces = (userId) => async (dispatch) => {
   dispatch({ type: START_LOADING });
 
-  const places = [];
+  const publicPlaces = [];
+  const userPlaces = [];
   const placesRef = db.collection("places");
-  const query = placesRef.orderBy("createdAt").limit(100);
-  const docs = await query.get();
-  docs.forEach((doc) => {
-    places.push({
+
+  const publicPlacesQuery = placesRef.where("public", "==", true);
+  const userPlacesQuery = placesRef.where("userId", "==", userId);
+
+  const publicPlacesDocs = await publicPlacesQuery.get();
+  publicPlacesDocs.forEach((doc) => {
+    publicPlaces.push({
       id: doc.id,
       ...doc.data(),
     });
   });
+
+  const userPlacesDocs = await userPlacesQuery.get();
+  userPlacesDocs.forEach((doc) => {
+    userPlaces.push({
+      id: doc.id,
+      ...doc.data(),
+    });
+  });
+
   dispatch({
     type: SET_PLACES,
-    payload: places,
+    payload: publicPlaces.concat(userPlaces),
   });
 
   dispatch({ type: STOP_LOADING });

@@ -18,6 +18,7 @@ import ResetPassword from "../pages/ResetPassword";
 import { Provider } from "react-redux";
 import store from "../redux/store";
 import { setCurrentUser, logoutUser } from "../redux/actions/userActions";
+import { getPublicPlaces } from "../redux/actions/dataActions";
 // Firebase
 import { auth } from "../utilities/firebase";
 
@@ -41,6 +42,7 @@ const App = () => {
     if (authUser) {
       store.dispatch(setCurrentUser());
     } else {
+      store.dispatch(getPublicPlaces());
       store.dispatch(logoutUser());
     }
   });

@@ -26,7 +26,7 @@ import {
   clearPlaces,
 } from "../../redux/actions/dataActions";
 // Firebase
-import { auth, db } from "../../utilities/firebase";
+import { db } from "../../utilities/firebase";
 
 const useStyles = makeStyles((theme) => ({
   mapBtn: {
@@ -52,6 +52,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const MapButtons = ({
+  user,
   data,
   setCurrentUserPosition,
   getPublicPlaces,
@@ -112,27 +113,21 @@ const MapButtons = ({
   };
 
   const updatePlaces = () => {
-    if (publicPlaces === true && userPlaces === true) {
-      getAllPlaces();
-    }
-
-    if (publicPlaces === false && userPlaces === false) {
+    if (user.auth && publicPlaces === true && userPlaces === true) {
+      getAllPlaces(user.data.id);
+    } else if (publicPlaces === false && userPlaces === false) {
       clearPlaces();
-    }
-
-    if (publicPlaces === true && userPlaces === false) {
+    } else if (publicPlaces === true && userPlaces === false) {
       getPublicPlaces();
-    }
-
-    if (userPlaces === true && publicPlaces === false) {
-      getUserPlaces(auth.currentUser.uid);
+    } else if (user.auth && userPlaces === true && publicPlaces === false) {
+      getUserPlaces(user.data.id);
     }
   };
 
   useEffect(() => {
     updatePlaces();
     setAnchorEl(null);
-  }, [publicPlaces, userPlaces]);
+  }, [publicPlaces, userPlaces, user.auth]);
 
   useEffect(() => {
     const placesCollection = db.collection("places");
@@ -143,7 +138,7 @@ const MapButtons = ({
 
   return (
     <div className={classes.btnGroup}>
-      {auth.currentUser && (
+      {user.auth && (
         <>
           <Tooltip title="Options">
             <Button
@@ -171,6 +166,7 @@ const MapButtons = ({
 };
 
 MapButtons.propTypes = {
+  user: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
   setCurrentUserPosition: PropTypes.func.isRequired,
   getPublicPlaces: PropTypes.func.isRequired,
@@ -180,6 +176,7 @@ MapButtons.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
+  user: state.user,
   data: state.data,
 });
 

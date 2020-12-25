@@ -45,8 +45,6 @@ const PlaceDialog = ({ place, data, setSelectedPlace, clearSelectedPlace }) => {
     clearSelectedPlace();
   };
 
-  // TODO: add place/:placeId route to open this dialog
-
   return (
     <>
       <Tooltip title="Open Place">

@@ -50,7 +50,11 @@ const DeletePlaceDialog = ({ data, deletePlace, clearSelectedPlace }) => {
           <Typography variant="h6">
             Are you sure you want to delete this place ?
           </Typography>
-          {data.error && <Alert severity="error">{data.error}</Alert>}
+          {data.error && (
+            <Alert severity="error" style={{ margin: "20px 0" }}>
+              {data.error}
+            </Alert>
+          )}
           <div className={classes.btnGroup}>
             <Button
               variant="contained"
