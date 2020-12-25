@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 // Components
 import SearchBar from "./SearchBar";
 import ProfilePopover from "./ProfilePopover";
+import PlacesPopover from "./PlacesPopover";
 // Material UI
 import "fontsource-rajdhani";
 import { makeStyles } from "@material-ui/core/styles";
@@ -15,7 +16,6 @@ import Tooltip from "@material-ui/core/Tooltip";
 import Hidden from "@material-ui/core/Hidden";
 // Icons
 import MapIcon from "@material-ui/icons/Explore";
-import GalleryIcon from "@material-ui/icons/Collections";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import SearchIcon from "@material-ui/icons/Search";
 import ReturnIcon from "@material-ui/icons/KeyboardReturn";
@@ -99,17 +99,11 @@ const Navbar = ({ user }) => {
                     </IconButton>
                   </Tooltip>
                 </Link>
-                {user.auth && (
-                  <Tooltip title="Gallery">
-                    <IconButton color="inherit">
-                      <GalleryIcon />
-                    </IconButton>
-                  </Tooltip>
-                )}
               </Hidden>
 
               {user.auth ? (
                 <>
+                  <PlacesPopover />
                   <Tooltip title="Notifications">
                     <IconButton color="inherit">
                       <NotificationsIcon />
