@@ -16,7 +16,6 @@ import Tooltip from "@material-ui/core/Tooltip";
 import Hidden from "@material-ui/core/Hidden";
 // Icons
 import MapIcon from "@material-ui/icons/Explore";
-import NotificationsIcon from "@material-ui/icons/Notifications";
 import SearchIcon from "@material-ui/icons/Search";
 import ReturnIcon from "@material-ui/icons/KeyboardReturn";
 import LoginIcon from "@material-ui/icons/AccountBox";
@@ -104,11 +103,6 @@ const Navbar = ({ user }) => {
               {user.auth ? (
                 <>
                   <PlacesPopover />
-                  <Tooltip title="Notifications">
-                    <IconButton color="inherit">
-                      <NotificationsIcon />
-                    </IconButton>
-                  </Tooltip>
                   <ProfilePopover user={user} />
                 </>
               ) : (

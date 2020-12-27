@@ -31,6 +31,7 @@ const PlacesPopover = ({ user, data }) => {
   const open = Boolean(anchorEl);
 
   const handlePopoverEnter = () => {
+    // TODO: fetch all users place and set it to state
     const userPlaces = data.places.filter((place) => {
       return place.userId === user.data.id;
     });
