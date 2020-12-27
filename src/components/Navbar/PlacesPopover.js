@@ -11,11 +11,14 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
+import CircularProgress from "@material-ui/core/CircularProgress";
 // Icons
 import ListIcon from "@material-ui/icons/ViewList";
 import MarkerIcon from "@material-ui/icons/Room";
 // Redux
 import { connect } from "react-redux";
+// Firebase
+import { db } from "../../utilities/firebase";
 
 const useStyles = makeStyles({
   paper: {
@@ -23,19 +26,30 @@ const useStyles = makeStyles({
   },
 });
 
-const PlacesPopover = ({ user, data }) => {
+const PlacesPopover = ({ user }) => {
   const classes = useStyles();
   // State
   const [places, setPlaces] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const handlePopoverEnter = () => {
-    // TODO: fetch all users place and set it to state
-    const userPlaces = data.places.filter((place) => {
-      return place.userId === user.data.id;
+  const handlePopoverEnter = async () => {
+    setLoading(true);
+
+    const query = db.collection("places").where("userId", "==", user.data.id);
+    const docs = await query.get();
+    const userPlaces = [];
+
+    docs.forEach((doc) => {
+      userPlaces.push({
+        id: doc.id,
+        ...doc.data(),
+      });
     });
+
     setPlaces(userPlaces);
+    setLoading(false);
   };
 
   return (
@@ -60,17 +74,27 @@ const PlacesPopover = ({ user, data }) => {
         classes={classes}
       >
         <List>
-          {places.map((place) => (
-            <ListItem key={place.id}>
-              <MarkerIcon
-                style={{ color: place.markerColor, marginRight: 5 }}
-              />
-              <ListItemText primary={place.location} />
-              <ListItemSecondaryAction>
-                <PlaceDialog place={place} />
-              </ListItemSecondaryAction>
-            </ListItem>
-          ))}
+          {loading ? (
+            <CircularProgress
+              style={{ margin: "10px auto", display: "block" }}
+              color="primary"
+              size={30}
+            />
+          ) : (
+            <>
+              {places.map((place) => (
+                <ListItem key={place.id}>
+                  <MarkerIcon
+                    style={{ color: place.markerColor, marginRight: 5 }}
+                  />
+                  <ListItemText primary={place.location} />
+                  <ListItemSecondaryAction>
+                    <PlaceDialog place={place} />
+                  </ListItemSecondaryAction>
+                </ListItem>
+              ))}
+            </>
+          )}
         </List>
       </Popover>
     </>
@@ -79,12 +103,10 @@ const PlacesPopover = ({ user, data }) => {
 
 PlacesPopover.propTypes = {
   user: PropTypes.object.isRequired,
-  data: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   user: state.user,
-  data: state.data,
 });
 
 export default connect(mapStateToProps, null)(PlacesPopover);
