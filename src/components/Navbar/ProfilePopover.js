@@ -14,7 +14,6 @@ import ListItemText from "@material-ui/core/ListItemText";
 import Divider from "@material-ui/core/Divider";
 // Icons
 import LogoutIcon from "@material-ui/icons/ExitToApp";
-import ManageProfileIcon from "@material-ui/icons/AccountBox";
 import ResetPasswordIcon from "@material-ui/icons/Lock";
 // Redux
 import { connect } from "react-redux";
@@ -89,12 +88,6 @@ const ProfilePopover = ({ user, logoutUser }) => {
         </div>
         <Divider />
         <List>
-          <ListItem button>
-            <ListItemIcon>
-              <ManageProfileIcon />
-            </ListItemIcon>
-            <ListItemText primary="Manage Profile" />
-          </ListItem>
           <ListItem component={Link} to="/reset-password" button>
             <ListItemIcon>
               <ResetPasswordIcon />

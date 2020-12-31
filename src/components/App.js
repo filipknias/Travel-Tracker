@@ -53,14 +53,12 @@ const App = () => {
         <Router>
           <Navbar />
           <Container className={classes.container}>
-            <>
-              <Switch>
-                <Route exact path="/" component={Map} />
-                <AuthRoute path="/login" component={Login} />
-                <AuthRoute path="/register" component={Register} />
-                <Route path="/reset-password" component={ResetPassword} />
-              </Switch>
-            </>
+            <Switch>
+              <Route exact path="/" component={Map} />
+              <AuthRoute path="/login" component={Login} />
+              <AuthRoute path="/register" component={Register} />
+              <Route path="/reset-password" component={ResetPassword} />
+            </Switch>
           </Container>
         </Router>
       </MuiThemeProvider>

@@ -55,7 +55,7 @@ const Map = ({
     return () => window.removeEventListener("resize", updateWindowSize);
   }, [windowWidth, windowHeight]);
 
-  // Set current user position and get places
+  // Set current user position
   useEffect(() => {
     setCurrentUserPosition(data.viewport);
   }, []);

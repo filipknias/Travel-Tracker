@@ -108,7 +108,9 @@ const PlaceMarker = ({ place }) => {
                 </div>
                 <div className={classes.placeInfoItem}>
                   <StarsIcon color="inherit" />
-                  <Typography variant="subtitle1">{place.ratingAvg}</Typography>
+                  <Typography variant="subtitle1">
+                    {place.ratingAvg.toFixed(1)}
+                  </Typography>
                 </div>
               </>
             )}

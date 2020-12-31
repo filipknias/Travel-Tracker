@@ -130,11 +130,12 @@ const MapButtons = ({
   }, [publicPlaces, userPlaces, user.auth]);
 
   useEffect(() => {
+    if (user.auth === false) return;
     const placesCollection = db.collection("places");
     placesCollection.onSnapshot(() => {
       updatePlaces();
     });
-  }, []);
+  }, [user.auth]);
 
   return (
     <div className={classes.btnGroup}>

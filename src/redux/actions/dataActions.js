@@ -308,7 +308,9 @@ export const getAllPlaces = (userId) => async (dispatch) => {
   const userPlaces = [];
   const placesRef = db.collection("places");
 
-  const publicPlacesQuery = placesRef.where("public", "==", true);
+  const publicPlacesQuery = placesRef
+    .where("public", "==", true)
+    .where("userId", "!=", userId);
   const userPlacesQuery = placesRef.where("userId", "==", userId);
 
   const publicPlacesDocs = await publicPlacesQuery.get();

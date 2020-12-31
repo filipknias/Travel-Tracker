@@ -12,6 +12,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Typography from "@material-ui/core/Typography";
 // Icons
 import ListIcon from "@material-ui/icons/ViewList";
 import MarkerIcon from "@material-ui/icons/Room";
@@ -74,26 +75,36 @@ const PlacesPopover = ({ user }) => {
         classes={classes}
       >
         <List>
-          {loading ? (
-            <CircularProgress
-              style={{ margin: "10px auto", display: "block" }}
-              color="primary"
-              size={30}
-            />
-          ) : (
+          {places.length > 0 ? (
             <>
-              {places.map((place) => (
-                <ListItem key={place.id}>
-                  <MarkerIcon
-                    style={{ color: place.markerColor, marginRight: 5 }}
-                  />
-                  <ListItemText primary={place.location} />
-                  <ListItemSecondaryAction>
-                    <PlaceDialog place={place} />
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
+              {loading ? (
+                <CircularProgress
+                  style={{ margin: "10px auto", display: "block" }}
+                  color="primary"
+                  size={30}
+                />
+              ) : (
+                <>
+                  {places.map((place) => (
+                    <ListItem key={place.id}>
+                      <MarkerIcon
+                        style={{ color: place.markerColor, marginRight: 5 }}
+                      />
+                      <ListItemText primary={place.location} />
+                      <ListItemSecondaryAction>
+                        <PlaceDialog place={place} />
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))}
+                </>
+              )}
             </>
+          ) : (
+            <div>
+              <Typography variant="subtitle1" style={{ textAlign: "center" }}>
+                No places found
+              </Typography>
+            </div>
           )}
         </List>
       </Popover>

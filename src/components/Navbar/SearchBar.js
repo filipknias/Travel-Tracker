@@ -60,14 +60,20 @@ const SearchBar = ({ data, setViewport }) => {
 
     setPlaces(formattedPlaces);
     setAnchorEl(target);
-  }, 1000);
+  }, 800);
+
+  const handleInputClick = (e) => {
+    if (e.target.value.trim() !== "") {
+      fetchPlaces(e.target.value, e.currentTarget);
+    }
+  };
 
   const handleLocationClick = (coords) => {
     setViewport({
       ...data.viewport,
       longitude: coords[0],
       latitude: coords[1],
-      zoom: 10,
+      zoom: 12,
     });
     setAnchorEl(null);
   };
@@ -80,11 +86,7 @@ const SearchBar = ({ data, setViewport }) => {
           placeholder="Search"
           className={classes.searchInput}
           onChange={(e) => fetchPlaces(e.target.value, e.currentTarget)}
-          onClick={(e) => {
-            if (e.target.value.trim() !== "") {
-              fetchPlaces(e.target.value, e.currentTarget);
-            }
-          }}
+          onClick={(e) => handleInputClick(e)}
         />
       </Paper>
       <Popover
