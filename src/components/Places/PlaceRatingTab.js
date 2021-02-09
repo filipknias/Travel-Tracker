@@ -129,6 +129,7 @@ const PlaceRatingTab = ({ user, data, ratePlace }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const userData = {
+      id: user.data.id,
       displayName: user.data.displayName,
       avatarColor: user.data.avatarColor,
     };

@@ -11,8 +11,8 @@ import {
   SET_MAP_STYLE,
   SET_ERROR,
   CLEAR_ERROR,
-  START_LOADING,
-  STOP_LOADING,
+  START_DATA_LOADING,
+  STOP_DATA_LOADING,
 } from "../types";
 // Firebase
 import firebase from "firebase/app";
@@ -117,7 +117,7 @@ export const addPlace = (
   publicStatus,
   visitDate
 ) => async (dispatch) => {
-  dispatch({ type: START_LOADING });
+  dispatch({ type: START_DATA_LOADING });
   dispatch({ type: CLEAR_ERROR });
 
   try {
@@ -130,7 +130,7 @@ export const addPlace = (
           type: SET_ERROR,
           payload: "Place with this location arleady exist",
         });
-        return dispatch({ type: STOP_LOADING });
+        return dispatch({ type: STOP_DATA_LOADING });
       }
     }
 
@@ -179,7 +179,7 @@ export const addPlace = (
     });
   }
 
-  dispatch({ type: STOP_LOADING });
+  dispatch({ type: STOP_DATA_LOADING });
 };
 
 export const editPlace = (
@@ -193,7 +193,7 @@ export const editPlace = (
   publicStatus,
   visitDate
 ) => async (dispatch) => {
-  dispatch({ type: START_LOADING });
+  dispatch({ type: START_DATA_LOADING });
   dispatch({ type: CLEAR_ERROR });
   try {
     if (location.trim() === "") return;
@@ -205,7 +205,7 @@ export const editPlace = (
           type: SET_ERROR,
           payload: "Place with this location arleady exist",
         });
-        return dispatch({ type: STOP_LOADING });
+        return dispatch({ type: STOP_DATA_LOADING });
       }
     }
 
@@ -255,11 +255,11 @@ export const editPlace = (
     });
   }
 
-  dispatch({ type: STOP_LOADING });
+  dispatch({ type: STOP_DATA_LOADING });
 };
 
 export const getPublicPlaces = () => async (dispatch) => {
-  dispatch({ type: START_LOADING });
+  dispatch({ type: START_DATA_LOADING });
 
   const publicPlaces = [];
   const placesRef = db.collection("places");
@@ -277,11 +277,11 @@ export const getPublicPlaces = () => async (dispatch) => {
     payload: publicPlaces,
   });
 
-  dispatch({ type: STOP_LOADING });
+  dispatch({ type: STOP_DATA_LOADING });
 };
 
 export const getUserPlaces = (userId) => async (dispatch) => {
-  dispatch({ type: START_LOADING });
+  dispatch({ type: START_DATA_LOADING });
 
   const userPlaces = [];
   const placesRef = db.collection("places");
@@ -298,11 +298,11 @@ export const getUserPlaces = (userId) => async (dispatch) => {
     payload: userPlaces,
   });
 
-  dispatch({ type: STOP_LOADING });
+  dispatch({ type: STOP_DATA_LOADING });
 };
 
 export const getAllPlaces = (userId) => async (dispatch) => {
-  dispatch({ type: START_LOADING });
+  dispatch({ type: START_DATA_LOADING });
 
   const publicPlaces = [];
   const userPlaces = [];
@@ -334,7 +334,7 @@ export const getAllPlaces = (userId) => async (dispatch) => {
     payload: publicPlaces.concat(userPlaces),
   });
 
-  dispatch({ type: STOP_LOADING });
+  dispatch({ type: STOP_DATA_LOADING });
 };
 
 export const clearPlaces = () => (dispatch) => {
@@ -344,7 +344,7 @@ export const clearPlaces = () => (dispatch) => {
 export const ratePlace = (rate, comment, placeId, userData) => async (
   dispatch
 ) => {
-  dispatch({ type: START_LOADING });
+  dispatch({ type: START_DATA_LOADING });
   try {
     const ratingsRef = db.collection("ratings");
     await ratingsRef.add({
@@ -361,11 +361,11 @@ export const ratePlace = (rate, comment, placeId, userData) => async (
       payload: "Somethink went wrong. Please try again",
     });
   }
-  dispatch({ type: STOP_LOADING });
+  dispatch({ type: STOP_DATA_LOADING });
 };
 
 export const deletePlace = (placeId) => async (dispatch) => {
-  dispatch({ type: START_LOADING });
+  dispatch({ type: START_DATA_LOADING });
 
   try {
     const docRef = db.collection("places").doc(placeId);
@@ -377,5 +377,5 @@ export const deletePlace = (placeId) => async (dispatch) => {
     });
   }
 
-  dispatch({ type: STOP_LOADING });
+  dispatch({ type: STOP_DATA_LOADING });
 };

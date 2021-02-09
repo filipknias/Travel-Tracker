@@ -4,8 +4,8 @@ import {
   LOGOUT_USER,
   SET_ERROR,
   CLEAR_ERROR,
-  START_LOADING,
-  STOP_LOADING,
+  START_USER_LOADING,
+  STOP_USER_LOADING,
 } from "../types";
 // Firebase
 import { auth } from "../../utilities/firebase";
@@ -22,7 +22,7 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
   dispatch
 ) => {
   dispatch({ type: CLEAR_ERROR });
-  dispatch({ type: START_LOADING });
+  dispatch({ type: START_USER_LOADING });
 
   try {
     if (password !== confirmPassword) {
@@ -58,12 +58,12 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
       payload: err.message,
     });
   }
-  dispatch({ type: STOP_LOADING });
+  dispatch({ type: STOP_USER_LOADING });
 };
 
 export const loginUser = (email, password, history) => async (dispatch) => {
   dispatch({ type: CLEAR_ERROR });
-  dispatch({ type: START_LOADING });
+  dispatch({ type: START_USER_LOADING });
 
   try {
     await auth.signInWithEmailAndPassword(email, password);
@@ -74,7 +74,7 @@ export const loginUser = (email, password, history) => async (dispatch) => {
       payload: err.message,
     });
   }
-  dispatch({ type: STOP_LOADING });
+  dispatch({ type: STOP_USER_LOADING });
 };
 
 export const setCurrentUser = () => async (dispatch) => {
@@ -99,7 +99,7 @@ export const logoutUser = () => (dispatch) => {
 
 export const changeUserPassword = (email, history) => async (dispatch) => {
   dispatch({ type: CLEAR_ERROR });
-  dispatch({ type: START_LOADING });
+  dispatch({ type: START_USER_LOADING });
   try {
     await auth.sendPasswordResetEmail(email);
     history.push("/login");
@@ -109,7 +109,7 @@ export const changeUserPassword = (email, history) => async (dispatch) => {
       payload: err.message,
     });
   }
-  dispatch({ type: STOP_LOADING });
+  dispatch({ type: STOP_USER_LOADING });
 };
 
 export const clearError = () => (dispatch) => {

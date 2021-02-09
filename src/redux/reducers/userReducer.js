@@ -3,8 +3,8 @@ import {
   LOGOUT_USER,
   SET_ERROR,
   CLEAR_ERROR,
-  START_LOADING,
-  STOP_LOADING,
+  START_USER_LOADING,
+  STOP_USER_LOADING,
 } from "../types";
 
 const initialState = {
@@ -40,12 +40,12 @@ export default function (state = initialState, action) {
         ...state,
         error: null,
       };
-    case START_LOADING:
+    case START_USER_LOADING:
       return {
         ...state,
         loading: true,
       };
-    case STOP_LOADING:
+    case STOP_USER_LOADING:
       return {
         ...state,
         loading: false,

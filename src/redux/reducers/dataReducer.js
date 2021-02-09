@@ -11,8 +11,8 @@ import {
   SET_MAP_STYLE,
   SET_ERROR,
   CLEAR_ERROR,
-  START_LOADING,
-  STOP_LOADING,
+  START_DATA_LOADING,
+  STOP_DATA_LOADING,
 } from "../types";
 
 const DEFAULT_MAP_STYLE = "mapbox://styles/mapbox/streets-v11";
@@ -95,12 +95,12 @@ export default function (state = initialState, action) {
         ...state,
         error: null,
       };
-    case START_LOADING:
+    case START_DATA_LOADING:
       return {
         ...state,
         loading: true,
       };
-    case STOP_LOADING:
+    case STOP_DATA_LOADING:
       return {
         ...state,
         loading: false,
