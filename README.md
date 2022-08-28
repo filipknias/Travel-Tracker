@@ -10,3 +10,9 @@ Main features:
 **Front-End:** HTML, Material UI, Javascript, React, Redux
 
 **Back-End:** Firebase
+
+**Live preview:**
+- https://travel-tracker-fc10f.firebaseapp.com
+
+**Code:**
+- https://github.com/filipknias/travel-tracker
