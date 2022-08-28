@@ -26,10 +26,12 @@ export const signUpUser = (email, password, confirmPassword, history) => async (
 
   try {
     if (password !== confirmPassword) {
-      return dispatch({
+      dispatch({ type: STOP_USER_LOADING });
+      dispatch({
         type: SET_ERROR,
         payload: "Passwords must be the same.",
       });
+      return;
     }
 
     await auth.createUserWithEmailAndPassword(email, password);

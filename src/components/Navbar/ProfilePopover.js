@@ -45,7 +45,8 @@ const ProfilePopover = ({ user, logoutUser }) => {
   // State
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-
+  
+  if (user.data.displayName === null || user.data.avatarColor === null) return null;
   return (
     <>
       <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
@@ -55,11 +56,9 @@ const ProfilePopover = ({ user, logoutUser }) => {
           className={classes.profileAvatar}
           style={{ backgroundColor: user.data.avatarColor }}
         >
-          {user.auth && (
-            <p className={classes.avatarLetter}>
-              {user.data.displayName.charAt(0).toUpperCase()}
-            </p>
-          )}
+        <p className={classes.avatarLetter}>
+          {user.data.displayName.charAt(0).toUpperCase()}
+        </p>
         </Avatar>
       </IconButton>
       <Popover
@@ -77,9 +76,7 @@ const ProfilePopover = ({ user, logoutUser }) => {
             alt="User avatar"
             style={{ backgroundColor: user.data.avatarColor }}
           >
-            {user.auth && (
-              <p>{user.data.displayName.charAt(0).toUpperCase()}</p>
-            )}
+            <p>{user.data.displayName.charAt(0).toUpperCase()}</p>
           </Avatar>
           <div className={classes.profileNameData}>
             <Typography variant="h6">{user.data.displayName}</Typography>
